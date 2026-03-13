@@ -36,11 +36,11 @@
             <span 
               class="status-icon" 
               :class="{ available: project.project_id, unavailable: !project.project_id }"
-              title="图谱构建"
+              title="Graph View构建"
             >◇</span>
             <span 
               class="status-icon available" 
-              title="环境搭建"
+              title="Environment Setup"
             >◈</span>
             <span 
               class="status-icon" 
@@ -65,7 +65,7 @@
               <span class="file-tag" :class="getFileType(file.filename)">{{ getFileTypeLabel(file.filename) }}</span>
               <span class="file-name">{{ truncateFilename(file.filename, 20) }}</span>
             </div>
-            <!-- 如果有更多文件，显示提示 -->
+            <!-- 如果有更多文件，显示Hint -->
             <div v-if="project.files.length > 3" class="files-more">
               +{{ project.files.length - 3 }} 个文件
             </div>
@@ -99,10 +99,10 @@
       </div>
     </div>
 
-    <!-- 加载状态 -->
+    <!-- Loading state -->
     <div v-if="loading" class="loading-state">
       <span class="loading-spinner"></span>
-      <span class="loading-text">加载中...</span>
+      <span class="loading-text">Loading......</span>
     </div>
 
     <!-- 历史回放详情弹窗 -->
@@ -159,7 +159,7 @@
               >
                 <span class="btn-step">Step1</span>
                 <span class="btn-icon">◇</span>
-                <span class="btn-text">图谱构建</span>
+                <span class="btn-text">Graph View构建</span>
               </button>
               <button 
                 class="modal-btn btn-simulation" 
@@ -167,7 +167,7 @@
               >
                 <span class="btn-step">Step2</span>
                 <span class="btn-icon">◈</span>
-                <span class="btn-text">环境搭建</span>
+                <span class="btn-text">Environment Setup</span>
               </button>
               <button 
                 class="modal-btn btn-report" 
@@ -179,9 +179,9 @@
                 <span class="btn-text">分析报告</span>
               </button>
             </div>
-            <!-- 不可回放提示 -->
+            <!-- 不可回放Hint -->
             <div class="modal-playback-hint">
-              <span class="hint-text">Step3「开始模拟」与 Step5「深度互动」需在运行中启动，不支持历史回放</span>
+              <span class="hint-text">Step3「Start Simulation」与 Step5「Deep Interaction」需在运行中启动，不支持历史回放</span>
             </div>
           </div>
         </div>
@@ -210,7 +210,7 @@ let isAnimating = false  // 动画锁，防止闪烁
 let expandDebounceTimer = null  // 防抖定时器
 let pendingState = null  // 记录待执行的目标状态
 
-// 卡片布局配置 - 调整为更宽的比例
+// 卡片布局Configuration - 调整为更宽的比例
 const CARDS_PER_ROW = 4
 const CARD_WIDTH = 280  
 const CARD_HEIGHT = 280 
@@ -297,7 +297,7 @@ const getProgressClass = (simulation) => {
     // 未开始
     return 'not-started'
   } else if (current >= total) {
-    // 已完成
+    // 已Complete
     return 'completed'
   } else {
     // 进行中
@@ -316,7 +316,7 @@ const formatDate = (dateStr) => {
   }
 }
 
-// 格式化时间（显示时:分）
+// Format time（显示时:分）
 const formatTime = (dateStr) => {
   if (!dateStr) return ''
   try {
@@ -391,17 +391,17 @@ const truncateFilename = (filename, maxLength) => {
   return truncatedName + ext
 }
 
-// 打开项目详情弹窗
+// Open项目详情弹窗
 const navigateToProject = (simulation) => {
   selectedProject.value = simulation
 }
 
-// 关闭弹窗
+// Close弹窗
 const closeModal = () => {
   selectedProject.value = null
 }
 
-// 导航到图谱构建页面（Project）
+// 导航到Graph View构建页面（Project）
 const goToProject = () => {
   if (selectedProject.value?.project_id) {
     router.push({
@@ -412,7 +412,7 @@ const goToProject = () => {
   }
 }
 
-// 导航到环境配置页面（Simulation）
+// 导航到环境Configuration页面（Simulation）
 const goToSimulation = () => {
   if (selectedProject.value?.simulation_id) {
     router.push({
@@ -443,7 +443,7 @@ const loadHistory = async () => {
       projects.value = response.data || []
     }
   } catch (error) {
-    console.error('加载历史项目失败:', error)
+    console.error('加载历史项目Failed:', error)
     projects.value = []
   } finally {
     loading.value = false
@@ -490,12 +490,12 @@ const initObserver = () => {
           // 检查待执行状态是否仍需要执行（可能已被后续滚动覆盖）
           if (pendingState === null || pendingState === isExpanded.value) return
           
-          // 设置动画锁
+          // Settings动画锁
           isAnimating = true
           isExpanded.value = pendingState
           pendingState = null
           
-          // 动画完成后解除锁定，并检查是否有待处理的状态变化
+          // 动画Complete后解除锁定，并检查是否有待处理的状态变化
           setTimeout(() => {
             isAnimating = false
             
@@ -531,7 +531,7 @@ const initObserver = () => {
   }
 }
 
-// 监听路由变化，当返回首页时重新加载数据
+// 监听路由变化，当Back首页时重新加载数据
 watch(() => route.path, (newPath) => {
   if (newPath === '/') {
     loadHistory()
@@ -539,7 +539,7 @@ watch(() => route.path, (newPath) => {
 })
 
 onMounted(async () => {
-  // 确保 DOM 渲染完成后再加载数据
+  // 确保 DOM 渲染Complete后再加载数据
   await nextTick()
   await loadHistory()
   
@@ -721,8 +721,8 @@ onUnmounted(() => {
 }
 
 /* 不同功能的颜色 */
-.status-icon:nth-child(1).available { color: #3B82F6; } /* 图谱构建 - 蓝色 */
-.status-icon:nth-child(2).available { color: #F59E0B; } /* 环境搭建 - 橙色 */
+.status-icon:nth-child(1).available { color: #3B82F6; } /* Graph View构建 - 蓝色 */
+.status-icon:nth-child(2).available { color: #F59E0B; } /* Environment Setup - 橙色 */
 .status-icon:nth-child(3).available { color: #10B981; } /* 分析报告 - 绿色 */
 
 .status-icon.unavailable {
@@ -745,7 +745,7 @@ onUnmounted(() => {
 }
 
 /* 进度状态颜色 */
-.card-progress.completed { color: #10B981; }    /* 已完成 - 绿色 */
+.card-progress.completed { color: #10B981; }    /* 已Complete - 绿色 */
 .card-progress.in-progress { color: #F59E0B; }  /* 进行中 - 橙色 */
 .card-progress.not-started { color: #9CA3AF; }  /* 未开始 - 灰色 */
 .card-status.pending { color: #9CA3AF; }
@@ -770,7 +770,7 @@ onUnmounted(() => {
   gap: 4px;
 }
 
-/* 更多文件提示 */
+/* 更多文件Hint */
 .files-more {
   display: flex;
   align-items: center;
@@ -1320,7 +1320,7 @@ onUnmounted(() => {
   color: #111827;
 }
 
-/* 不可回放提示 */
+/* 不可回放Hint */
 .modal-playback-hint {
   display: flex;
   align-items: center;

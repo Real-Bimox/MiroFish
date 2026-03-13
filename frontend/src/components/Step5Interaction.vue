@@ -155,7 +155,7 @@
               <div class="tools-card-avatar">R</div>
               <div class="tools-card-info">
                 <div class="tools-card-name">Report Agent - Chat</div>
-                <div class="tools-card-subtitle">报告生成智能体的快速对话版本，可调用 4 种专业工具，拥有MiroFish的完整记忆</div>
+                <div class="tools-card-subtitle">Report Generation智能体的快速对话版本，可调用 4 种专业工具，拥有MiroFish的完整记忆</div>
               </div>
               <button class="tools-card-toggle" @click="showToolsDetail = !showToolsDetail">
                 <svg :class="{ 'is-expanded': showToolsDetail }" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -185,7 +185,7 @@
                   </div>
                   <div class="tool-content">
                     <div class="tool-name">PanoramaSearch 全景追踪</div>
-                    <div class="tool-desc">基于图结构的广度遍历算法，重构事件传播路径，捕获全量信息流动的拓扑结构</div>
+                    <div class="tool-desc">基于图结构的广度遍历算法，重构事件传播路径，捕获全量Info流动的拓扑结构</div>
                   </div>
                 </div>
                 <div class="tool-item tool-orange">
@@ -196,7 +196,7 @@
                   </div>
                   <div class="tool-content">
                     <div class="tool-name">QuickSearch 快速检索</div>
-                    <div class="tool-desc">基于 GraphRAG 的即时查询接口，优化索引效率，用于快速提取具体的节点属性与离散事实</div>
+                    <div class="tool-desc">基于 GraphRAG 的即时查询接口，优化索引效率，用于快速提取具体的Nodes属性与离散事实</div>
                   </div>
                 </div>
                 <div class="tool-item tool-green">
@@ -250,7 +250,7 @@
                 </svg>
               </div>
               <p class="empty-text">
-                {{ chatTarget === 'report_agent' ? '与 Report Agent 对话，深入了解报告内容' : '与模拟个体对话，了解他们的观点' }}
+                {{ chatTarget === 'report_agent' ? 'Chat with Report Agent，深入了解报告内容' : '与模拟个体对话，了解他们的观点' }}
               </p>
             </div>
             <div 
@@ -484,7 +484,7 @@ const selectChatTarget = (target) => {
   }
 }
 
-// 保存当前对话记录到缓存
+// Save当前对话记录到缓存
 const saveChatHistory = () => {
   if (chatHistory.value.length === 0) return
   
@@ -496,7 +496,7 @@ const saveChatHistory = () => {
 }
 
 const selectReportAgentChat = () => {
-  // 保存当前对话记录
+  // Save当前对话记录
   saveChatHistory()
   
   activeTab.value = 'chat'
@@ -525,7 +525,7 @@ const toggleAgentDropdown = () => {
 }
 
 const selectAgent = (agent, idx) => {
-  // 保存当前对话记录
+  // Save当前对话记录
   saveChatHistory()
   
   selectedAgent.value = agent
@@ -662,16 +662,16 @@ const sendMessage = async () => {
       await sendToAgent(message)
     }
   } catch (err) {
-    addLog(`发送失败: ${err.message}`)
+    addLog(`发送Failed: ${err.message}`)
     chatHistory.value.push({
       role: 'assistant',
-      content: `抱歉，发生了错误: ${err.message}`,
+      content: `抱歉，发生了Error: ${err.message}`,
       timestamp: new Date().toISOString()
     })
   } finally {
     isSending.value = false
     scrollToBottom()
-    // 自动保存对话记录到缓存
+    // 自动Save对话记录到缓存
     saveChatHistory()
   }
 }
@@ -702,7 +702,7 @@ const sendToReportAgent = async (message) => {
     })
     addLog('Report Agent 已回复')
   } else {
-    throw new Error(res.error || '请求失败')
+    throw new Error(res.error || '请求Failed')
   }
 }
 
@@ -766,7 +766,7 @@ const sendToAgent = async (message) => {
       throw new Error('无响应数据')
     }
   } else {
-    throw new Error(res.error || '请求失败')
+    throw new Error(res.error || '请求Failed')
   }
 }
 
@@ -859,10 +859,10 @@ const submitSurvey = async () => {
       surveyResults.value = surveyResultsList
       addLog(`收到 ${surveyResults.value.length} 条回复`)
     } else {
-      throw new Error(res.error || '请求失败')
+      throw new Error(res.error || '请求Failed')
     }
   } catch (err) {
-    addLog(`问卷发送失败: ${err.message}`)
+    addLog(`问卷发送Failed: ${err.message}`)
   } finally {
     isSurveying.value = false
   }
@@ -873,7 +873,7 @@ const loadReportData = async () => {
   if (!props.reportId) return
   
   try {
-    addLog(`加载报告数据: ${props.reportId}`)
+    addLog(`Loading report data: ${props.reportId}`)
     
     // Get report info
     const reportRes = await getReport(props.reportId)
@@ -882,7 +882,7 @@ const loadReportData = async () => {
       await loadAgentLogs()
     }
   } catch (err) {
-    addLog(`加载报告失败: ${err.message}`)
+    addLog(`加载报告Failed: ${err.message}`)
   }
 }
 
@@ -904,10 +904,10 @@ const loadAgentLogs = async () => {
         }
       })
       
-      addLog('报告数据加载完成')
+      addLog('报告数据加载Complete')
     }
   } catch (err) {
-    addLog(`加载报告日志失败: ${err.message}`)
+    addLog(`加载报告日志Failed: ${err.message}`)
   }
 }
 
@@ -921,7 +921,7 @@ const loadProfiles = async () => {
       addLog(`加载了 ${profiles.value.length} 个模拟个体`)
     }
   } catch (err) {
-    addLog(`加载模拟个体失败: ${err.message}`)
+    addLog(`加载模拟个体Failed: ${err.message}`)
   }
 }
 
@@ -935,7 +935,7 @@ const handleClickOutside = (e) => {
 
 // Lifecycle
 onMounted(() => {
-  addLog('Step5 深度互动初始化')
+  addLog('Step5 Deep Interaction初始化')
   loadReportData()
   loadProfiles()
   document.addEventListener('click', handleClickOutside)

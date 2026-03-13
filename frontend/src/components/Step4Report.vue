@@ -127,9 +127,9 @@
             </div>
           </div>
 
-          <!-- Next Step Button - 在完成后显示 -->
+          <!-- Next Step Button - 在Complete后显示 -->
           <button v-if="isComplete" class="next-step-btn" @click="goToInteraction">
-            <span>进入深度互动</span>
+            <span>进入Deep Interaction</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -194,7 +194,7 @@
                     </div>
                   </template>
                   
-                  <!-- Section Content Generated (内容生成完成，但整个章节可能还没完成) -->
+                  <!-- Section Content Generated (内容生成Complete，但整个章节可能还没Complete) -->
                   <template v-if="log.action === 'section_content'">
                     <div class="section-tag content-ready">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -205,7 +205,7 @@
                     </div>
                   </template>
 
-                  <!-- Section Complete (章节生成完成) -->
+                  <!-- Section Complete (章节生成Complete) -->
                   <template v-if="log.action === 'section_complete'">
                     <div class="section-tag completed">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -315,7 +315,7 @@
                         Final: {{ log.details?.has_final_answer ? 'Yes' : 'No' }}
                       </span>
                     </div>
-                    <!-- 当是最终答案时，显示特殊提示 -->
+                    <!-- 当是最终答案时，显示特殊Hint -->
                     <div v-if="log.details?.has_final_answer" class="final-answer-hint">
                       <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
@@ -431,7 +431,7 @@ const showRawResult = reactive({})
 
 // Toggle functions
 const toggleRawResult = (timestamp, event) => {
-  // 保存按钮相对于视口的位置
+  // Save按钮相对于视口的位置
   const button = event?.target
   const buttonRect = button?.getBoundingClientRect()
   const buttonTopBeforeToggle = buttonRect?.top
@@ -464,7 +464,7 @@ const toggleSectionContent = (idx) => {
 }
 
 const toggleSectionCollapse = (idx) => {
-  // 只有已完成的章节才能折叠
+  // 只有已Complete的章节才能折叠
   if (!generatedSections.value[idx + 1]) return
   const newSet = new Set(collapsedSections.value)
   if (newSet.has(idx)) {
@@ -562,7 +562,7 @@ const parseInsightForge = (text) => {
     // 提取统计数据 - 匹配"相关预测事实: X条"格式
     const factMatch = text.match(/相关预测事实:\s*(\d+)/)
     const entityMatch = text.match(/涉及实体:\s*(\d+)/)
-    const relMatch = text.match(/关系链:\s*(\d+)/)
+    const relMatch = text.match(/Relationships链:\s*(\d+)/)
     if (factMatch) result.stats.facts = parseInt(factMatch[1])
     if (entityMatch) result.stats.entities = parseInt(entityMatch[1])
     if (relMatch) result.stats.relationships = parseInt(relMatch[1])
@@ -603,8 +603,8 @@ const parseInsightForge = (text) => {
       }).filter(e => e.name)
     }
     
-    // 提取关系链 - 完整提取，不限制数量
-    const relSection = text.match(/### 【关系链】\n([\s\S]*?)(?=\n###|$)/)
+    // 提取Relationships链 - 完整提取，不限制数量
+    const relSection = text.match(/### 【Relationships链】\n([\s\S]*?)(?=\n###|$)/)
     if (relSection) {
       const lines = relSection[1].split('\n').filter(l => l.trim().startsWith('-'))
       result.relations = lines.map(l => {
@@ -637,7 +637,7 @@ const parsePanorama = (text) => {
     if (queryMatch) result.query = queryMatch[1].trim()
     
     // 提取统计数据
-    const nodesMatch = text.match(/总节点数:\s*(\d+)/)
+    const nodesMatch = text.match(/总Nodes数:\s*(\d+)/)
     const edgesMatch = text.match(/总边数:\s*(\d+)/)
     const activeMatch = text.match(/当前有效事实:\s*(\d+)/)
     const histMatch = text.match(/历史\/过期事实:\s*(\d+)/)
@@ -757,7 +757,7 @@ const parseInterview = (text) => {
         }
         
         if (name) {
-          // 保存上一个人的理由
+          // Save上一个人的理由
           if (currentName && currentReason.length > 0) {
             reasons[currentName] = currentReason.join(' ').trim()
           }
@@ -770,7 +770,7 @@ const parseInterview = (text) => {
         }
       }
       
-      // 保存最后一个人的理由
+      // Save最后一个人的理由
       if (currentName && currentReason.length > 0) {
         reasons[currentName] = currentReason.join(' ').trim()
       }
@@ -806,7 +806,7 @@ const parseInterview = (text) => {
       if (nameRoleMatch) {
         interview.name = nameRoleMatch[1].trim()
         interview.role = nameRoleMatch[2].trim()
-        // 设置该人的选择理由
+        // Settings该人的选择理由
         interview.selectionReason = individualReasons[interview.name] || ''
       }
       
@@ -924,7 +924,7 @@ const parseQuickSearch = (text) => {
       result.facts = lines.map(l => l.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
     }
     
-    // 尝试提取边信息（如果有）
+    // 尝试提取边Info（如果有）
     const edgesSection = text.match(/### 相关边:\n([\s\S]*?)(?=\n###|$)/)
     if (edgesSection) {
       const lines = edgesSection[1].split('\n').filter(l => l.trim().startsWith('-'))
@@ -937,8 +937,8 @@ const parseQuickSearch = (text) => {
       }).filter(Boolean)
     }
     
-    // 尝试提取节点信息（如果有）
-    const nodesSection = text.match(/### 相关节点:\n([\s\S]*?)(?=\n###|$)/)
+    // 尝试提取NodesInfo（如果有）
+    const nodesSection = text.match(/### 相关Nodes:\n([\s\S]*?)(?=\n###|$)/)
     if (nodesSection) {
       const lines = nodesSection[1].split('\n').filter(l => l.trim().startsWith('-'))
       result.nodes = lines.map(l => {
@@ -1026,7 +1026,7 @@ const InsightDisplay = {
           class: ['insight-tab', { active: activeTab.value === 'relations' }],
           onClick: () => { activeTab.value = 'relations' }
         }, [
-          h('span', { class: 'tab-label' }, `关系链 (${props.result.relations.length})`)
+          h('span', { class: 'tab-label' }, `Relationships链 (${props.result.relations.length})`)
         ]),
         props.result.subQueries.length > 0 && h('button', {
           class: ['insight-tab', { active: activeTab.value === 'subqueries' }],
@@ -1082,7 +1082,7 @@ const InsightDisplay = {
         // Relations Tab
         activeTab.value === 'relations' && props.result.relations.length > 0 && h('div', { class: 'relations-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '关系链'),
+            h('span', { class: 'panel-title' }, 'Relationships链'),
             h('span', { class: 'panel-count' }, `共 ${props.result.relations.length} 条`)
           ]),
           h('div', { class: 'relations-list' },
@@ -1123,7 +1123,7 @@ const InsightDisplay = {
         // Empty state
         activeTab.value === 'facts' && props.result.facts.length === 0 && h('div', { class: 'empty-state' }, '暂无当前关键记忆'),
         activeTab.value === 'entities' && props.result.entities.length === 0 && h('div', { class: 'empty-state' }, '暂无核心实体'),
-        activeTab.value === 'relations' && props.result.relations.length === 0 && h('div', { class: 'empty-state' }, '暂无关系链')
+        activeTab.value === 'relations' && props.result.relations.length === 0 && h('div', { class: 'empty-state' }, '暂无Relationships链')
       ])
     ])
   }
@@ -1225,7 +1225,7 @@ const PanoramaDisplay = {
               h('div', { class: 'fact-item historical', key: i }, [
                 h('span', { class: 'fact-number' }, i + 1),
                 h('div', { class: 'fact-content' }, [
-                  // 尝试提取时间信息 [time - time]
+                  // 尝试提取时间Info [time - time]
                   (() => {
                     const timeMatch = fact.match(/^\[(.+?)\]\s*(.*)$/)
                     if (timeMatch) {
@@ -1301,7 +1301,7 @@ const InterviewDisplay = {
       return platformTabs[key] || 'twitter'
     }
     
-    // 设置某个问题的平台选择
+    // Settings某个问题的平台选择
     const setPlatformTab = (agentIdx, qIdx, platform) => {
       const key = `${agentIdx}-${qIdx}`
       platformTabs[key] = platform
@@ -1363,7 +1363,7 @@ const InterviewDisplay = {
         }
       }
 
-      // 如果没有找到编号或只找到一个，返回整体
+      // 如果没有找到编号或只找到一个，Back整体
       if (matches.length <= 1) {
         const cleaned = answerText
           .replace(/^问题\d+[：:]\s*/, '')
@@ -1401,12 +1401,12 @@ const InterviewDisplay = {
       const questionCount = interview.questions?.length || 1
       const answers = splitAnswerByQuestions(answer, questionCount)
 
-      // 分割成功且索引有效
+      // 分割Success且索引有效
       if (answers.length > 1 && qIdx < answers.length) {
         return answers[qIdx] || ''
       }
 
-      // 分割失败：第一个问题返回完整回答，其余返回空
+      // 分割Failed：第一个问题Back完整回答，其余Back空
       return qIdx === 0 ? answer : ''
     }
     
@@ -1627,13 +1627,13 @@ const QuickSearchDisplay = {
           class: ['quicksearch-tab', { active: activeTab.value === 'edges' }],
           onClick: () => { activeTab.value = 'edges' }
         }, [
-          h('span', { class: 'tab-label' }, `关系 (${props.result.edges.length})`)
+          h('span', { class: 'tab-label' }, `Relationships (${props.result.edges.length})`)
         ]),
         hasNodes.value && h('button', {
           class: ['quicksearch-tab', { active: activeTab.value === 'nodes' }],
           onClick: () => { activeTab.value = 'nodes' }
         }, [
-          h('span', { class: 'tab-label' }, `节点 (${props.result.nodes.length})`)
+          h('span', { class: 'tab-label' }, `Nodes (${props.result.nodes.length})`)
         ])
       ]),
       
@@ -1662,7 +1662,7 @@ const QuickSearchDisplay = {
         // Edges Tab
         activeTab.value === 'edges' && hasEdges.value && h('div', { class: 'edges-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '相关关系'),
+            h('span', { class: 'panel-title' }, '相关Relationships'),
             h('span', { class: 'panel-count' }, `共 ${props.result.edges.length} 条`)
           ]),
           h('div', { class: 'edges-list' },
@@ -1683,7 +1683,7 @@ const QuickSearchDisplay = {
         // Nodes Tab
         activeTab.value === 'nodes' && hasNodes.value && h('div', { class: 'nodes-panel' }, [
           h('div', { class: 'panel-header' }, [
-            h('span', { class: 'panel-title' }, '相关节点'),
+            h('span', { class: 'panel-title' }, '相关Nodes'),
             h('span', { class: 'panel-count' }, `共 ${props.result.nodes.length} 个`)
           ]),
           h('div', { class: 'nodes-grid' },
@@ -1771,11 +1771,11 @@ const activeStep = computed(() => {
   const active = steps.find(s => s.status === 'active')
   if (active) return active
   
-  // 如果没有 active，返回最后一个 done 的步骤
+  // 如果没有 active，Back最后一个 done 的步骤
   const doneSteps = steps.filter(s => s.status === 'done')
   if (doneSteps.length > 0) return doneSteps[doneSteps.length - 1]
   
-  // 否则返回第一个步骤
+  // 否则Back第一个步骤
   return steps[0] || { noLabel: '--', title: '等待开始', status: 'todo', meta: '' }
 })
 
@@ -2006,8 +2006,8 @@ const getActionLabel = (action) => {
 }
 
 const getLogLevelClass = (log) => {
-  if (log.includes('ERROR') || log.includes('错误')) return 'error'
-  if (log.includes('WARNING') || log.includes('警告')) return 'warning'
+  if (log.includes('ERROR') || log.includes('Error')) return 'error'
+  if (log.includes('WARNING') || log.includes('Warning')) return 'warning'
   // INFO 使用默认颜色，不标记为 success
   return ''
 }
@@ -2037,7 +2037,7 @@ const fetchAgentLog = async () => {
             currentSectionIndex.value = log.section_index
           }
 
-          // section_complete - 章节生成完成
+          // section_complete - 章节生成Complete
           if (log.action === 'section_complete') {
             if (log.details?.content) {
               generatedSections.value[log.section_index] = log.details.content
@@ -2064,7 +2064,7 @@ const fetchAgentLog = async () => {
         
         nextTick(() => {
           if (rightPanel.value) {
-            // 如果任务已完成，滚动到顶部；否则滚动到底部跟随最新日志
+            // 如果任务已Complete，滚动到顶部；否则滚动到底部跟随最新日志
             if (isComplete.value) {
               rightPanel.value.scrollTop = 0
             } else {
@@ -2109,7 +2109,7 @@ const extractFinalContent = (response) => {
     return trimmedResponse
   }
   
-  // 如果内容较长且包含markdown格式，尝试移除思考过程后返回
+  // 如果内容较长且包含markdown格式，尝试移除思考过程后Back
   if (response.length > 300 && (response.includes('**') || response.includes('>'))) {
     // 移除 Thought: 开头的思考过程
     const thoughtMatch = response.match(/^Thought:[\s\S]*?(?=\n\n[^T]|\n\n$)/i)

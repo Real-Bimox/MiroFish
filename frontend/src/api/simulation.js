@@ -51,7 +51,7 @@ export const getSimulationProfilesRealtime = (simulationId, platform = 'reddit')
 }
 
 /**
- * 获取模拟配置
+ * 获取模拟Configuration
  * @param {string} simulationId
  */
 export const getSimulationConfig = (simulationId) => {
@@ -59,9 +59,9 @@ export const getSimulationConfig = (simulationId) => {
 }
 
 /**
- * 实时获取生成中的模拟配置
+ * 实时获取生成中的模拟Configuration
  * @param {string} simulationId
- * @returns {Promise} 返回配置信息，包含元数据和配置内容
+ * @returns {Promise} BackConfigurationInfo，包含元数据和Configuration内容
  */
 export const getSimulationConfigRealtime = (simulationId) => {
   return service.get(`/api/simulation/${simulationId}/config/realtime`)
@@ -69,7 +69,7 @@ export const getSimulationConfigRealtime = (simulationId) => {
 
 /**
  * 列出所有模拟
- * @param {string} projectId - 可选，按项目ID过滤
+ * @param {string} projectId - 可选，按Project ID过滤
  */
 export const listSimulations = (projectId) => {
   const params = projectId ? { project_id: projectId } : {}
@@ -112,7 +112,7 @@ export const getRunStatusDetail = (simulationId) => {
  * 获取模拟中的帖子
  * @param {string} simulationId
  * @param {string} platform - 'reddit' | 'twitter'
- * @param {number} limit - 返回数量
+ * @param {number} limit - Back数量
  * @param {number} offset - 偏移量
  */
 export const getSimulationPosts = (simulationId, platform = 'reddit', limit = 50, offset = 0) => {
@@ -136,7 +136,7 @@ export const getSimulationTimeline = (simulationId, startRound = 0, endRound = n
 }
 
 /**
- * 获取Agent统计信息
+ * 获取Agent统计Info
  * @param {string} simulationId
  */
 export const getAgentStats = (simulationId) => {
@@ -153,7 +153,7 @@ export const getSimulationActions = (simulationId, params = {}) => {
 }
 
 /**
- * 关闭模拟环境（优雅退出）
+ * Close模拟环境（优雅退出）
  * @param {Object} data - { simulation_id, timeout? }
  */
 export const closeSimulationEnv = (data) => {
@@ -179,7 +179,7 @@ export const interviewAgents = (data) => {
 /**
  * 获取历史模拟列表（带项目详情）
  * 用于首页历史项目展示
- * @param {number} limit - 返回数量限制
+ * @param {number} limit - Back数量限制
  */
 export const getSimulationHistory = (limit = 20) => {
   return service.get('/api/simulation/history', { params: { limit } })
