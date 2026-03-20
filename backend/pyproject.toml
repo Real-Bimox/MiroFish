@@ -1,6 +1,6 @@
 [project]
 name = "mirofish-backend"
-version = "0.1.0"
+version = "0.2.0"
 description = "MiroFish - 简洁通用的群体智能引擎，预测万物"
 requires-python = ">=3.11"
 license = { text = "AGPL-3.0" }
@@ -16,8 +16,9 @@ dependencies = [
     # LLM 相关
     "openai>=1.0.0",
     
-    # Zep Cloud
-    "zep-cloud==3.13.0",
+    # Graphiti - self-hosted knowledge graph (replaces Zep Cloud)
+    "graphiti-core>=0.28.2",
+    "neo4j>=5.26.0",
     
     # OASIS 社交媒体模拟
     "camel-oasis==0.2.5",
@@ -53,3 +54,10 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
+
+[tool.uv]
+# camel-oasis==0.2.5 pins neo4j==5.23.0, but it only runs on Python <3.12.
+# graphiti-core requires neo4j>=5.26.0. Override to allow the newer version.
+override-dependencies = [
+    "neo4j>=5.26.0",
+]
