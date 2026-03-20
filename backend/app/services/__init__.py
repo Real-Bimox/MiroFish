@@ -24,10 +24,11 @@ try:
         AgentAction,
         RoundSummary
     )
-    from .zep_graph_memory_updater import (
-        ZepGraphMemoryUpdater,
-        ZepGraphMemoryManager,
-        AgentActivity
+    from .graphiti_memory_updater import (
+        GraphitiMemoryUpdater,
+        GraphitiMemoryManager,
+        GraphitiMemoryUpdater as ZepGraphMemoryUpdater,
+        GraphitiMemoryManager as ZepGraphMemoryManager,
     )
     from .simulation_ipc import (
         SimulationIPCClient,
@@ -66,7 +67,6 @@ __all__ = [
     'RoundSummary',
     'ZepGraphMemoryUpdater',
     'ZepGraphMemoryManager',
-    'AgentActivity',
     'SimulationIPCClient',
     'SimulationIPCServer',
     'IPCCommand',

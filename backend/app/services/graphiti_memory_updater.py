@@ -188,8 +188,24 @@ class GraphitiMemoryManager:
             return updater
 
     @classmethod
+    def get_updater(cls, simulation_id: str) -> "GraphitiMemoryUpdater | None":
+        with cls._lock:
+            return cls._updaters.get(simulation_id)
+
+    @classmethod
     def stop_updater(cls, simulation_id: str):
         with cls._lock:
             updater = cls._updaters.pop(simulation_id, None)
         if updater:
             updater.stop()
+
+    @classmethod
+    def stop_all(cls):
+        with cls._lock:
+            updaters = list(cls._updaters.values())
+            cls._updaters.clear()
+        for updater in updaters:
+            try:
+                updater.stop()
+            except Exception:
+                pass
