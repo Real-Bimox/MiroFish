@@ -9,7 +9,7 @@ import warnings
 # 需要在所有其他导入之前设置
 warnings.filterwarnings("ignore", message=".*resource_tracker.*")
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from .config import Config
@@ -71,7 +71,26 @@ def create_app(config_class=Config):
     # 健康检查
     @app.route('/health')
     def health():
-        return {'status': 'ok', 'service': 'MiroFish Backend'}
+        neo4j_ok = False
+        try:
+            from neo4j import GraphDatabase
+            from .config import Config
+            driver = GraphDatabase.driver(
+                Config.NEO4J_URI,
+                auth=(Config.NEO4J_USER, Config.NEO4J_PASSWORD)
+            )
+            driver.verify_connectivity()
+            driver.close()
+            neo4j_ok = True
+        except Exception:
+            pass
+
+        status = "ok" if neo4j_ok else "degraded"
+        return jsonify({
+            "status": status,
+            "service": "MiroFish Backend",
+            "neo4j": "connected" if neo4j_ok else "unreachable",
+        }), 200 if neo4j_ok else 503
     
     if should_log_startup:
         logger.info("MiroFish Backend 启动完成")
