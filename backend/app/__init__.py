@@ -75,6 +75,10 @@ def create_app(config_class=Config):
     
     if should_log_startup:
         logger.info("MiroFish Backend 启动完成")
-    
+
+    import atexit
+    from .services.graphiti_client import close_all as _close_graphiti
+    atexit.register(_close_graphiti)
+
     return app
 
