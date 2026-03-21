@@ -21,12 +21,12 @@ from enum import Enum
 from ..config import Config
 from ..utils.llm_client import LLMClient
 from ..utils.logger import get_logger
-from .zep_tools import (
-    ZepToolsService, 
-    SearchResult, 
-    InsightForgeResult, 
+from .graphiti_tools import (
+    ZepToolsService,
+    SearchResult,
+    InsightForgeResult,
     PanoramaResult,
-    InterviewResult
+    InterviewResult,
 )
 
 logger = get_logger('mirofish.report_agent')
@@ -353,7 +353,7 @@ class ReportConsoleLogger:
         # Add to report_agent related loggers
         loggers_to_attach = [
             'mirofish.report_agent',
-            'mirofish.zep_tools',
+            'app.services.graphiti_tools',
         ]
         
         for logger_name in loggers_to_attach:
@@ -369,7 +369,7 @@ class ReportConsoleLogger:
         if self._file_handler:
             loggers_to_detach = [
                 'mirofish.report_agent',
-                'mirofish.zep_tools',
+                'app.services.graphiti_tools',
             ]
             
             for logger_name in loggers_to_detach:
@@ -2114,6 +2114,7 @@ class ReportManager:
 
         # Build section Markdown content - clean up possible duplicate headings
         md_content = f"## {section.title}\n\n"
+        cleaned_content = cls._clean_section_content(section.content, section.title)
         if cleaned_content:
             md_content += f"{cleaned_content}\n\n"
 

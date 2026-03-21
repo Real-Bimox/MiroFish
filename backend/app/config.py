@@ -23,6 +23,11 @@ class Config:
     # Flask configuration
     SECRET_KEY = os.environ.get('SECRET_KEY', 'mirofish-secret-key')
     DEBUG = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
+
+    # API authentication — if set, all /api/* requests must present:
+    #   Authorization: Bearer <MIROFISH_API_KEY>
+    # Leave unset (or empty) to disable auth (useful for local dev).
+    MIROFISH_API_KEY = os.environ.get('MIROFISH_API_KEY', '')
     
     # JSON configuration - disable ASCII escaping for Unicode characters
     JSON_AS_ASCII = False

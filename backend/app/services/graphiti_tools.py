@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 
 
 @dataclass
-class SearchResult:
+class _SearchData:
     query: str
     facts: list[str] = field(default_factory=list)
     historical_facts: list[str] = field(default_factory=list)
@@ -99,7 +99,7 @@ class GraphitiToolsService:
             else:
                 active_edges.append(_edge_to_dict(e))
 
-        return SearchResult(
+        return _SearchData(
             query=query,
             facts=[e["fact"] for e in active_edges],
             historical_facts=historical,
@@ -169,4 +169,144 @@ class GraphitiToolsService:
             "edge_count": len(edges),
             "node_types": node_types,
             "edge_types": edge_types,
+        }
+
+
+# ---------------------------------------------------------------------------
+# Result wrappers and ZepToolsService — previously in zep_tools.py shim
+# ---------------------------------------------------------------------------
+
+import json as _json
+from typing import Optional as _Optional, List as _List
+
+
+class _DictResult:
+    """Wraps a dict result with a to_text() method expected by report_agent."""
+
+    def __init__(self, data: dict):
+        self._data = data
+
+    def to_text(self) -> str:
+        return _json.dumps(self._data, ensure_ascii=False, indent=2)
+
+    def get(self, key, default=None):
+        return self._data.get(key, default)
+
+
+class InsightForgeResult(_DictResult):
+    pass
+
+
+class PanoramaResult(_DictResult):
+    pass
+
+
+class SearchResult(_DictResult):
+    pass
+
+
+class InterviewResult(_DictResult):
+    pass
+
+
+class ZepToolsService:
+    """
+    Tools service with the legacy Zep-compatible interface, backed by GraphitiToolsService.
+    Previously in zep_tools.py — moved here when shim was removed.
+    """
+
+    def __init__(self, api_key: _Optional[str] = None):
+        from .graphiti_entity_reader import ZepEntityReader as _ZepEntityReader
+        self._tools = GraphitiToolsService()
+        self._entity_reader = _ZepEntityReader()
+
+    def insight_forge(
+        self,
+        graph_id: str,
+        query: str,
+        simulation_requirement: str = "",
+        report_context: str = "",
+        entity_name: str = "",
+        limit: int = 15,
+    ) -> InsightForgeResult:
+        name = entity_name or " ".join(query.split()[:3])
+        result = self._tools.insight_forge(group_id=graph_id, entity_name=name, query=query, limit=limit)
+        return InsightForgeResult(result)
+
+    def panorama_search(
+        self,
+        graph_id: str,
+        query: str,
+        include_expired: bool = True,
+        limit: int = 30,
+    ) -> PanoramaResult:
+        result = self._tools.panorama_search(group_id=graph_id, query=query, limit=limit)
+        return PanoramaResult(result)
+
+    def quick_search(
+        self,
+        graph_id: str,
+        query: str,
+        limit: int = 20,
+    ) -> SearchResult:
+        result = self._tools.quick_search(group_id=graph_id, query=query, limit=limit)
+        return SearchResult(result)
+
+    def interview_agents(
+        self,
+        simulation_id: str,
+        interview_requirement: str,
+        simulation_requirement: str = "",
+        max_agents: int = 5,
+    ) -> InterviewResult:
+        return InterviewResult({
+            "note": "interview_agents is not supported in Graphiti mode",
+            "simulation_id": simulation_id,
+            "interview_requirement": interview_requirement,
+            "answers": [],
+        })
+
+    def get_graph_statistics(self, graph_id: str) -> dict:
+        stats = self._tools.get_graph_statistics(group_id=graph_id)
+        return {
+            "total_nodes":  stats.get("node_count", 0),
+            "total_edges":  stats.get("edge_count", 0),
+            "node_count":   stats.get("node_count", 0),
+            "edge_count":   stats.get("edge_count", 0),
+            "node_types":   stats.get("node_types", {}),
+            "edge_types":   stats.get("edge_types", {}),
+            "entity_types": stats.get("node_types", {}),
+        }
+
+    def get_entity_summary(self, graph_id: str, entity_name: str) -> dict:
+        nodes = self._entity_reader.get_entities_by_type(graph_id=graph_id, entity_type=entity_name)
+        if not nodes:
+            filtered = self._entity_reader.filter_defined_entities(graph_id=graph_id)
+            nodes = [e for e in filtered.entities if entity_name.lower() in e.name.lower()]
+        if nodes:
+            return nodes[0].to_dict()
+        return {"name": entity_name, "found": False}
+
+    def get_entities_by_type(self, graph_id: str, entity_type: str) -> list:
+        return self._entity_reader.get_entities_by_type(graph_id=graph_id, entity_type=entity_type)
+
+    def get_simulation_context(self, graph_id: str, simulation_requirement: str = "") -> dict:
+        stats = self.get_graph_statistics(graph_id)
+        try:
+            search = self._tools.quick_search(
+                group_id=graph_id,
+                query=simulation_requirement or "simulation overview",
+                limit=10,
+            )
+            related_facts = search.get("facts", []) if isinstance(search, dict) else []
+        except Exception:
+            related_facts = []
+        return {
+            "graph_statistics": {
+                "total_nodes":  stats["total_nodes"],
+                "total_edges":  stats["total_edges"],
+                "entity_types": stats["entity_types"],
+            },
+            "total_entities": stats["total_nodes"],
+            "related_facts":  related_facts,
         }

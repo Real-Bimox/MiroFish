@@ -48,6 +48,20 @@ def create_app(config_class=Config):
     if should_log_startup:
         logger.info("Registered simulation process cleanup function")
     
+    # API key authentication middleware
+    _api_key = config_class.MIROFISH_API_KEY
+
+    @app.before_request
+    def check_api_auth():
+        """Enforce Bearer token for /api/* routes when MIROFISH_API_KEY is configured."""
+        if not _api_key:
+            return  # auth disabled
+        if not request.path.startswith('/api/'):
+            return  # /health and other non-API paths are unprotected
+        auth_header = request.headers.get('Authorization', '')
+        if not auth_header.startswith('Bearer ') or auth_header[7:] != _api_key:
+            return jsonify({"success": False, "error": "Unauthorized"}), 401
+
     # Request logging middleware
     @app.before_request
     def log_request():
