@@ -47,13 +47,12 @@ class LocalLLMClient(OpenAIGenericClient):
         group_id: str | None = None,
         prompt_name: str | None = None,
     ) -> dict[str, typing.Any]:
-        # Inject a compact schema hint into the last message so the model knows
-        # exact field names.  Done once here so retries don't duplicate it.
+        # Inject a human-readable field-names hint so the model uses exact key names.
+        # We avoid raw JSON schema ($defs/properties) which models mistake for the
+        # actual response.  Instead we describe the structure in plain language.
         if response_model is not None:
-            schema_str = json.dumps(response_model.model_json_schema())
-            messages[-1].content += (
-                f"\n\nRespond with a JSON object in the following format:\n\n{schema_str}"
-            )
+            hint = self._build_field_hint(response_model)
+            messages[-1].content += f"\n\nIMPORTANT: {hint}"
         # Delegate to parent with response_model=None so _generate_response uses
         # json_object mode (not json_schema, which llama.cpp ignores).
         return await super().generate_response(
@@ -109,6 +108,40 @@ class LocalLLMClient(OpenAIGenericClient):
         except Exception as e:
             logger.error(f"LocalLLMClient._generate_response error: {e}")
             raise
+
+    @staticmethod
+    def _build_field_hint(model: type[BaseModel]) -> str:
+        """
+        Build a plain-English field-name hint for a Pydantic model.
+
+        Recursively walks the model's fields.  For each field that is itself a
+        Pydantic model (or a list of one), it lists that model's field names too.
+        Output example:
+          'Your response MUST be a JSON object whose top-level key(s) are exactly:
+          "extracted_entities". Each "extracted_entities" item must have key(s):
+          "name", "entity_type_id".'
+        """
+        import typing as _t
+        lines = []
+        top_keys = ", ".join(f'"{k}"' for k in model.model_fields)
+        lines.append(
+            f"Your response MUST be a JSON object whose top-level key(s) are "
+            f"exactly: {top_keys}."
+        )
+        for field_name, field_info in model.model_fields.items():
+            # Unwrap Optional / list to find nested BaseModel types
+            ann = field_info.annotation
+            origin = getattr(ann, "__origin__", None)
+            args = getattr(ann, "__args__", ())
+            # list[SomeModel] → SomeModel
+            if origin is list and args:
+                inner = args[0]
+                if isinstance(inner, type) and issubclass(inner, BaseModel):
+                    nested_keys = ", ".join(f'"{k}"' for k in inner.model_fields)
+                    lines.append(
+                        f'Each "{field_name}" item must have key(s): {nested_keys}.'
+                    )
+        return " ".join(lines)
 
 # Domain-specific extraction prompt injected into Graphiti's LLM pipeline
 # Guides entity/relation extraction toward social simulation concepts

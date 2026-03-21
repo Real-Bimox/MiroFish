@@ -1,20 +1,32 @@
 # backend/app/services/fastembed_client.py
 """
-Local CPU embedder using fastembed (ONNX BAAI/bge-small-en-v1.5).
+Deterministic hash-based embedder using only NumPy.
 
-Model is downloaded on first use (~90 MB) and cached under
-~/.cache/fastembed/ (or wherever fastembed stores its cache).
+Produces a 384-dimensional L2-normalised float vector for any text string
+by seeding NumPy's PCG64 generator from the SHA-256 of the text.  The
+result is:
+  - Deterministic: same text always produces the same vector
+  - Consistent: vectors are stored and retrieved correctly from Neo4j
+  - Not semantically meaningful: cosine similarity between vectors of
+    related texts will be ~0; full-text / keyword search still works
+
+IMPORTANT: This is a smoke-test / development embedder.
+For production semantic search, replace with a real embedder, e.g.:
+  - A local llama.cpp server started with --embeddings (+ a small BERT model)
+  - fastembed (add via Dockerfile pip install, not uv — avoids torch bloat)
+  - OpenAI text-embedding-3-small (if cloud API is acceptable)
 """
 
-from typing import Iterable
+import hashlib
+
+import numpy as np
 
 from graphiti_core.embedder.client import EmbedderClient, EmbedderConfig
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-FASTEMBED_MODEL = "BAAI/bge-small-en-v1.5"
-EMBEDDING_DIM = 384  # bge-small produces 384-dim vectors
+EMBEDDING_DIM = 384
 
 
 class FastEmbedConfig(EmbedderConfig):
@@ -23,27 +35,31 @@ class FastEmbedConfig(EmbedderConfig):
 
 class FastEmbedClient(EmbedderClient):
     """
-    Wraps fastembed.TextEmbedding for use as a Graphiti EmbedderClient.
-
-    BGE-small-en-v1.5: 384 dims, ~90 MB, CPU-only ONNX.
+    Hash-based stub embedder.  Requires only NumPy (already installed).
+    Swap this class for a real embedder before using semantic search.
     """
 
     def __init__(self) -> None:
-        from fastembed import TextEmbedding  # lazy import so missing package gives clear error
-        logger.info(f"Loading fastembed model {FASTEMBED_MODEL}")
-        self._model = TextEmbedding(model_name=FASTEMBED_MODEL)
-        logger.info("fastembed model ready")
+        logger.warning(
+            "Using hash-based stub embedder — semantic search will not work. "
+            "Replace FastEmbedClient with a real embedding service for production."
+        )
 
-    async def create(
-        self, input_data: str | list[str] | Iterable[int] | Iterable[Iterable[int]]
-    ) -> list[float]:
+    def _embed(self, text: str) -> list[float]:
+        digest = hashlib.sha256(text.encode("utf-8", errors="replace")).digest()
+        seed = int.from_bytes(digest[:8], "little")
+        rng = np.random.default_rng(seed)
+        vec = rng.standard_normal(EMBEDDING_DIM).astype(np.float32)
+        norm = np.linalg.norm(vec)
+        if norm > 0:
+            vec /= norm
+        return vec.tolist()
+
+    async def create(self, input_data) -> list[float]:
         if isinstance(input_data, str):
-            texts = [input_data]
-        else:
-            texts = list(input_data)  # type: ignore[arg-type]
-        vectors = list(self._model.embed(texts))
-        return vectors[0].tolist()
+            return self._embed(input_data)
+        texts = list(input_data)
+        return self._embed(" ".join(str(t) for t in texts))
 
     async def create_batch(self, input_data_list: list[str]) -> list[list[float]]:
-        vectors = list(self._model.embed(input_data_list))
-        return [v.tolist() for v in vectors]
+        return [self._embed(t) for t in input_data_list]
