@@ -8,17 +8,107 @@ validation only happen once per project lifetime.
 """
 
 import inspect
+import json
+import re
 import threading
+import typing
+
+from pydantic import BaseModel
+
 from graphiti_core import Graphiti
-from graphiti_core.llm_client.openai_client import OpenAIClient
-from graphiti_core.llm_client.config import LLMConfig
-from graphiti_core.embedder import OpenAIEmbedder, OpenAIEmbedderConfig
+from graphiti_core.llm_client.openai_generic_client import OpenAIGenericClient
+from graphiti_core.llm_client.config import LLMConfig, ModelSize
+from graphiti_core.prompts.models import Message
 from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerClient
+from app.services.fastembed_client import FastEmbedClient
 from app.config import Config
 from app.utils.async_loop import run_async
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+class LocalLLMClient(OpenAIGenericClient):
+    """
+    OpenAI-compatible client for local models (llama.cpp-router).
+
+    Local models don't enforce json_schema response_format, so field names drift
+    (e.g. `entity_name` instead of `name`). Fix: inject the schema as a compact
+    one-line format example into the prompt, then use plain json_object mode.
+    Schema injection happens once in generate_response (not in the retry loop).
+    """
+
+    async def generate_response(
+        self,
+        messages: list[Message],
+        response_model: type[BaseModel] | None = None,
+        max_tokens: int | None = None,
+        model_size: ModelSize = ModelSize.medium,
+        group_id: str | None = None,
+        prompt_name: str | None = None,
+    ) -> dict[str, typing.Any]:
+        # Inject a compact schema hint into the last message so the model knows
+        # exact field names.  Done once here so retries don't duplicate it.
+        if response_model is not None:
+            schema_str = json.dumps(response_model.model_json_schema())
+            messages[-1].content += (
+                f"\n\nRespond with a JSON object in the following format:\n\n{schema_str}"
+            )
+        # Delegate to parent with response_model=None so _generate_response uses
+        # json_object mode (not json_schema, which llama.cpp ignores).
+        return await super().generate_response(
+            messages,
+            response_model=None,
+            max_tokens=max_tokens,
+            model_size=model_size,
+            group_id=group_id,
+            prompt_name=prompt_name,
+        )
+
+    async def _generate_response(
+        self,
+        messages,
+        response_model=None,
+        max_tokens=None,
+        model_size=None,
+    ) -> dict:
+        """
+        Override to strip markdown code fences that thinking models wrap around JSON.
+        E.g. GLM/Qwen sometimes return ```json\\n{...}\\n``` instead of raw JSON.
+        """
+        import openai as _openai
+        from graphiti_core.llm_client.config import DEFAULT_MAX_TOKENS, ModelSize as MS
+        from graphiti_core.llm_client.errors import RateLimitError as _RLE
+        from graphiti_core.prompts.models import Message as _Msg
+
+        openai_messages = []
+        for m in messages:
+            m.content = self._clean_input(m.content)
+            if m.role in ("user", "system"):
+                openai_messages.append({"role": m.role, "content": m.content})
+
+        _max = max_tokens or self.max_tokens or DEFAULT_MAX_TOKENS
+
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model or "local",
+                messages=openai_messages,  # type: ignore[arg-type]
+                temperature=self.temperature,
+                max_tokens=_max,
+                response_format={"type": "json_object"},
+            )
+            raw = response.choices[0].message.content or ""
+            # Strip markdown fences (```json ... ```) some models add
+            raw = raw.strip()
+            if raw.startswith("```"):
+                raw = re.sub(r'^```(?:json)?\s*', '', raw)
+                raw = re.sub(r'\s*```$', '', raw).strip()
+            return json.loads(raw or "{}")
+        except _openai.RateLimitError as e:
+            raise _RLE from e
+        except Exception as e:
+            logger.error(f"LocalLLMClient._generate_response error: {e}")
+            raise
 
 # Domain-specific extraction prompt injected into Graphiti's LLM pipeline
 # Guides entity/relation extraction toward social simulation concepts
@@ -42,12 +132,8 @@ def _build_graphiti() -> Graphiti:
         model=Config.LLM_MODEL_NAME,
         base_url=Config.LLM_BASE_URL,
     )
-    llm_client = OpenAIClient(config=llm_config)
-    embedder_config = OpenAIEmbedderConfig(
-        api_key=Config.LLM_API_KEY,
-        base_url=Config.LLM_BASE_URL,
-    )
-    embedder = OpenAIEmbedder(config=embedder_config)
+    llm_client = LocalLLMClient(config=llm_config)
+    embedder = FastEmbedClient()
     cross_encoder = OpenAIRerankerClient(config=llm_config)
     return Graphiti(
         uri=Config.NEO4J_URI,

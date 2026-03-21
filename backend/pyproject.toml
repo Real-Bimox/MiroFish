@@ -19,6 +19,8 @@ dependencies = [
     # Graphiti - self-hosted knowledge graph (replaces Zep Cloud)
     "graphiti-core>=0.28.2",
     "neo4j>=5.26.0",
+    # Embeddings: CPU ONNX inference, no external service required
+    "fastembed>=0.4.0",
     
     # OASIS 社交媒体模拟
     "camel-oasis==0.2.5",
