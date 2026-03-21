@@ -13,6 +13,7 @@ from graphiti_core import Graphiti
 from graphiti_core.llm_client.openai_client import OpenAIClient
 from graphiti_core.llm_client.config import LLMConfig
 from graphiti_core.embedder import OpenAIEmbedder, OpenAIEmbedderConfig
+from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerClient
 from app.config import Config
 from app.utils.async_loop import run_async
 from app.utils.logger import get_logger
@@ -47,12 +48,14 @@ def _build_graphiti() -> Graphiti:
         base_url=Config.LLM_BASE_URL,
     )
     embedder = OpenAIEmbedder(config=embedder_config)
+    cross_encoder = OpenAIRerankerClient(config=llm_config)
     return Graphiti(
         uri=Config.NEO4J_URI,
         user=Config.NEO4J_USER,
         password=Config.NEO4J_PASSWORD,
         llm_client=llm_client,
         embedder=embedder,
+        cross_encoder=cross_encoder,
     )
 
 
