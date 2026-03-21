@@ -30,10 +30,17 @@ class GraphBuilderService:
         return f"mirofish_{uuid.uuid4().hex[:16]}"
 
     def build_entity_types(self, ontology: dict) -> dict[str, type[BaseModel]]:
-        """Convert MiroFish ontology dict to Graphiti entity_types format."""
+        """Convert MiroFish ontology list to Graphiti entity_types format.
+
+        Ontology stores entity_types as a list: [{name, description, attributes, examples}]
+        Graphiti expects a dict: {TypeName: BaseModel subclass}
+        """
         entity_types: dict[str, type[BaseModel]] = {}
-        for name, meta in ontology.get("entity_types", {}).items():
-            description = meta.get("description", "")
+        for item in ontology.get("entity_types", []):
+            name = item.get("name", "")
+            if not name:
+                continue
+            description = item.get("description", "")
             fields: dict[str, Any] = {"__annotations__": {}}
             if description:
                 fields["__doc__"] = description
@@ -41,10 +48,17 @@ class GraphBuilderService:
         return entity_types
 
     def build_edge_types(self, ontology: dict) -> dict[str, type[BaseModel]]:
-        """Convert ontology edge definitions to Graphiti edge_types format."""
+        """Convert ontology edge list to Graphiti edge_types format.
+
+        Ontology stores edge_types as a list: [{name, description, source_targets, attributes}]
+        Graphiti expects a dict: {EdgeName: BaseModel subclass}
+        """
         edge_types: dict[str, type[BaseModel]] = {}
-        for name, meta in ontology.get("edge_types", {}).items():
-            description = meta.get("description", "")
+        for item in ontology.get("edge_types", []):
+            name = item.get("name", "")
+            if not name:
+                continue
+            description = item.get("description", "")
             fields: dict[str, Any] = {"__annotations__": {}}
             if description:
                 fields["__doc__"] = description
@@ -52,10 +66,17 @@ class GraphBuilderService:
         return edge_types
 
     def build_edge_type_map(self, ontology: dict) -> dict[tuple[str, str], list[str]]:
-        """Convert source_targets to Graphiti edge_type_map format."""
+        """Convert source_targets embedded in edge_types list to Graphiti edge_type_map format.
+
+        Ontology embeds source_targets within each edge_type item (not top-level).
+        Graphiti expects: {(SourceType, TargetType): [EdgeName, ...]}
+        """
         edge_type_map: dict[tuple[str, str], list[str]] = {}
-        for edge_name, targets in ontology.get("source_targets", {}).items():
-            for st in targets:
+        for item in ontology.get("edge_types", []):
+            edge_name = item.get("name", "")
+            if not edge_name:
+                continue
+            for st in item.get("source_targets", []):
                 key = (st["source"], st["target"])
                 edge_type_map.setdefault(key, []).append(edge_name)
         return edge_type_map
