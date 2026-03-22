@@ -15,7 +15,7 @@
             :class="{ active: viewMode === mode }"
             @click="viewMode = mode"
           >
-            {{ { graph: 'Graph View', split: 'Split View', workbench: '工作台' }[mode] }}
+            {{ { graph: 'Graph View', split: 'Split View', workbench: 'Workbench' }[mode] }}
           </button>
         </div>
       </div>
@@ -90,8 +90,8 @@ const router = useRouter()
 const viewMode = ref('split') // graph | split | workbench
 
 // Step State
-const currentStep = ref(1) // 1: Graph View构建, 2: Environment Setup, 3: Start Simulation, 4: Report Generation, 5: Deep Interaction
-const stepNames = ['Graph View构建', 'Environment Setup', 'Start Simulation', 'Report Generation', 'Deep Interaction']
+const currentStep = ref(1) // 1: Graph View Build, 2: Environment Setup, 3: Start Simulation, 4: Report Generation, 5: Deep Interaction
+const stepNames = ['Graph View Build', 'Environment Setup', 'Start Simulation', 'Report Generation', 'Deep Interaction']
 
 // Data State
 const currentProjectId = ref(route.params.projectId)

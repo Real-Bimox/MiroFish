@@ -15,7 +15,7 @@
             :class="{ active: viewMode === mode }"
             @click="viewMode = mode"
           >
-            {{ { graph: 'Graph View', split: 'Split View', workbench: '工作台' }[mode] }}
+            {{ { graph: 'Graph View', split: 'Split View', workbench: 'Workbench' }[mode] }}
           </button>
         </div>
       </div>
@@ -141,26 +141,26 @@ const loadReportData = async () => {
   try {
     addLog(`Loading report data: ${currentReportId.value}`)
     
-    // 获取 report Info以获取 simulation_id
+    // Get report info to obtain simulation_id
     const reportRes = await getReport(currentReportId.value)
     if (reportRes.success && reportRes.data) {
       const reportData = reportRes.data
       simulationId.value = reportData.simulation_id
       
       if (simulationId.value) {
-        // 获取 simulation Info
+        // Get simulation info
         const simRes = await getSimulation(simulationId.value)
         if (simRes.success && simRes.data) {
           const simData = simRes.data
           
-          // 获取 project Info
+          // Get project info
           if (simData.project_id) {
             const projRes = await getProject(simData.project_id)
             if (projRes.success && projRes.data) {
               projectData.value = projRes.data
               addLog(`Project loaded successfully: ${projRes.data.project_id}`)
               
-              // 获取 graph 数据
+              // Get graph data
               if (projRes.data.graph_id) {
                 await loadGraph(projRes.data.graph_id)
               }
@@ -169,7 +169,7 @@ const loadReportData = async () => {
         }
       }
     } else {
-      addLog(`Failed to get report info: ${reportRes.error || '未知Error'}`)
+      addLog(`Failed to get report info: ${reportRes.error || 'unknown error'}`)
     }
   } catch (err) {
     addLog(`Load error: ${err.message}`)
@@ -183,10 +183,10 @@ const loadGraph = async (graphId) => {
     const res = await getGraphData(graphId)
     if (res.success) {
       graphData.value = res.data
-      addLog('Graph View数据加载Success')
+      addLog('Graph View data loaded successfully')
     }
   } catch (err) {
-    addLog(`Graph View加载Failed: ${err.message}`)
+    addLog(`Graph View load failed: ${err.message}`)
   } finally {
     graphLoading.value = false
   }
@@ -207,7 +207,7 @@ watch(() => route.params.reportId, (newId) => {
 }, { immediate: true })
 
 onMounted(() => {
-  addLog('ReportView 初始化')
+  addLog('ReportView initialized')
   loadReportData()
 })
 </script>

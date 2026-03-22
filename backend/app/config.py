@@ -37,6 +37,10 @@ class Config:
     LLM_BASE_URL = os.environ.get('LLM_BASE_URL', 'https://api.openai.com/v1')
     LLM_MODEL_NAME = os.environ.get('LLM_MODEL_NAME', 'gpt-4o-mini')
     
+    # Ollama embeddings configuration
+    OLLAMA_BASE_URL   = os.environ.get('OLLAMA_BASE_URL',   'http://host.containers.internal:11434/v1')
+    OLLAMA_EMBED_MODEL = os.environ.get('OLLAMA_EMBED_MODEL', 'nomic-embed-text')
+
     # Graphiti / Neo4j configuration
     NEO4J_URI      = os.environ.get('NEO4J_URI',      'bolt://localhost:7687')
     NEO4J_USER     = os.environ.get('NEO4J_USER',     'neo4j')

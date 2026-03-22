@@ -15,7 +15,7 @@
             :class="{ active: viewMode === mode }"
             @click="viewMode = mode"
           >
-            {{ { graph: 'Graph View', split: 'Split View', workbench: '工作台' }[mode] }}
+            {{ { graph: 'Graph View', split: 'Split View', workbench: 'Workbench' }[mode] }}
           </button>
         </div>
       </div>
@@ -145,14 +145,14 @@ const toggleMaximize = (target) => {
 }
 
 const handleGoBack = async () => {
-  // 在Back Step 2 之前，先Close正在运行的模拟
+  // Before going back to Step 2, close running simulation
   addLog('Preparing to return to Step 2, closing simulation...')
   
   // 停止轮询
   stopGraphRefresh()
   
   try {
-    // 先尝试优雅Close模拟环境
+    // First try graceful close of simulation environment
     const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
@@ -169,33 +169,33 @@ const handleGoBack = async () => {
           await stopSimulation({ simulation_id: currentSimulationId.value })
           addLog('✓ Simulation force stopped')
         } catch (stopErr) {
-          addLog(`强制停止Failed: ${stopErr.message}`)
+          addLog(`Force stop failed: ${stopErr.message}`)
         }
       }
     } else {
-      // 环境未运行，检查是否需要停止进程
+      // Environment not running, check if process needs to be stopped
       if (isSimulating.value) {
         addLog('Stopping simulation process...')
         try {
           await stopSimulation({ simulation_id: currentSimulationId.value })
           addLog('✓ Simulation stopped')
         } catch (err) {
-          addLog(`停止模拟Failed: ${err.message}`)
+          addLog(`Stop simulation failed: ${err.message}`)
         }
       }
     }
   } catch (err) {
-    addLog(`检查模拟状态Failed: ${err.message}`)
+    addLog(`Checking simulation status failed: ${err.message}`)
   }
   
-  // Back到 Step 2 (Environment Setup)
+  // Go back to Step 2 (Environment Setup)
   router.push({ name: 'Simulation', params: { simulationId: currentSimulationId.value } })
 }
 
 const handleNextStep = () => {
-  // Step3Simulation 组件会直接处理Report Generation和路由跳转
-  // 这个方法仅作为备用
-  addLog('进入 Step 4: Report Generation')
+  // Step3Simulation component will directly handle Report Generation and routing
+  // This method is only a fallback
+  addLog('Entering Step 4: Report Generation')
 }
 
 // --- Data Logic ---
@@ -203,37 +203,37 @@ const loadSimulationData = async () => {
   try {
     addLog(`Loading simulation data: ${currentSimulationId.value}`)
     
-    // 获取 simulation Info
+    // Get simulation info
     const simRes = await getSimulation(currentSimulationId.value)
     if (simRes.success && simRes.data) {
       const simData = simRes.data
       
-      // 获取 simulation config 以获取 minutes_per_round
+      // Get simulation config for minutes_per_round
       try {
         const configRes = await getSimulationConfig(currentSimulationId.value)
         if (configRes.success && configRes.data?.time_config?.minutes_per_round) {
           minutesPerRound.value = configRes.data.time_config.minutes_per_round
-          addLog(`Time configuration: 每轮 ${minutesPerRound.value} 分钟`)
+          addLog(`Time configuration: ${minutesPerRound.value} minutes per round`)
         }
       } catch (configErr) {
-        addLog(`获取Time configurationFailed，使用默认值: ${minutesPerRound.value}分钟/轮`)
+        addLog(`Getting time configuration failed, using default: ${minutesPerRound.value} minutes/round`)
       }
       
-      // 获取 project Info
+      // Get project info
       if (simData.project_id) {
         const projRes = await getProject(simData.project_id)
         if (projRes.success && projRes.data) {
           projectData.value = projRes.data
           addLog(`Project loaded successfully: ${projRes.data.project_id}`)
           
-          // 获取 graph 数据
+          // Get graph data
           if (projRes.data.graph_id) {
             await loadGraph(projRes.data.graph_id)
           }
         }
       }
     } else {
-      addLog(`Loading simulation dataFailed: ${simRes.error || '未知Error'}`)
+      addLog(`Loading simulation data failed: ${simRes.error || 'unknown error'}`)
     }
   } catch (err) {
     addLog(`Load error: ${err.message}`)
@@ -241,8 +241,8 @@ const loadSimulationData = async () => {
 }
 
 const loadGraph = async (graphId) => {
-  // 当正在模拟时，自动刷新不显示全屏 loading，以免闪烁
-  // 手动刷新或初始加载时显示 loading
+  // When simulating, auto-refresh does not show fullscreen loading to avoid flicker
+  // Manual refresh or initial load shows loading
   if (!isSimulating.value) {
     graphLoading.value = true
   }
@@ -252,11 +252,11 @@ const loadGraph = async (graphId) => {
     if (res.success) {
       graphData.value = res.data
       if (!isSimulating.value) {
-        addLog('Graph View数据加载Success')
+        addLog('Graph View data loaded successfully')
       }
     }
   } catch (err) {
-    addLog(`Graph View加载Failed: ${err.message}`)
+    addLog(`Graph View load failed: ${err.message}`)
   } finally {
     graphLoading.value = false
   }
@@ -273,8 +273,8 @@ let graphRefreshTimer = null
 
 const startGraphRefresh = () => {
   if (graphRefreshTimer) return
-  addLog('开启Graph View实时刷新 (30s)')
-  // 立即刷新一次，然后每30秒刷新
+  addLog('Starting Graph View real-time refresh (30s)')
+  // Immediately refresh once, then every 30 seconds
   graphRefreshTimer = setInterval(refreshGraph, 30000)
 }
 
@@ -282,7 +282,7 @@ const stopGraphRefresh = () => {
   if (graphRefreshTimer) {
     clearInterval(graphRefreshTimer)
     graphRefreshTimer = null
-    addLog('停止Graph View实时刷新')
+    addLog('Stopping Graph View real-time refresh')
   }
 }
 
@@ -295,9 +295,9 @@ watch(isSimulating, (newValue) => {
 }, { immediate: true })
 
 onMounted(() => {
-  addLog('SimulationRunView 初始化')
+  addLog('SimulationRunView initialized')
   
-  // 记录 maxRounds Configuration（值已在初始化时从 query 参数获取）
+  // Record maxRounds configuration (value already obtained from query params at initialization)
   if (maxRounds.value) {
     addLog(`Custom simulation rounds: ${maxRounds.value}`)
   }

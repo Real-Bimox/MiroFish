@@ -15,7 +15,7 @@
             :class="{ active: viewMode === mode }"
             @click="viewMode = mode"
           >
-            {{ { graph: 'Graph View', split: 'Split View', workbench: '工作台' }[mode] }}
+            {{ { graph: 'Graph View', split: 'Split View', workbench: 'Workbench' }[mode] }}
           </button>
         </div>
       </div>
@@ -137,7 +137,7 @@ const toggleMaximize = (target) => {
 }
 
 const handleGoBack = () => {
-  // Back到 process 页面
+  // Back to process page
   if (projectData.value?.project_id) {
     router.push({ name: 'Process', params: { projectId: projectData.value.project_id } })
   } else {
@@ -146,81 +146,81 @@ const handleGoBack = () => {
 }
 
 const handleNextStep = (params = {}) => {
-  addLog('进入 Step 3: Start Simulation')
+  addLog('Entering Step 3: Start Simulation')
   
-  // 记录模拟轮数Configuration
+  // Record simulation rounds configuration
   if (params.maxRounds) {
-    addLog(`Custom simulation rounds: ${params.maxRounds} 轮`)
+    addLog(`Custom simulation rounds: ${params.maxRounds}`)
   } else {
-    addLog('使用自动Configuration的模拟轮数')
+    addLog('Using auto-configured simulation rounds')
   }
   
-  // 构建路由参数
+  // Build route params
   const routeParams = {
     name: 'SimulationRun',
     params: { simulationId: currentSimulationId.value }
   }
   
-  // 如果有自定义轮数，通过 query 参数传递
+  // If custom rounds provided, pass via query params
   if (params.maxRounds) {
     routeParams.query = { maxRounds: params.maxRounds }
   }
   
-  // 跳转到 Step 3 页面
+  // Navigate to Step 3 page
   router.push(routeParams)
 }
 
 // --- Data Logic ---
 
 /**
- * 检查并Close正在运行的模拟
- * 当用户从 Step 3 Back到 Step 2 时，默认用户要退出模拟
+ * Check and close running simulation
+ * When user goes back from Step 3 to Step 2, default to exiting simulation
  */
 const checkAndStopRunningSimulation = async () => {
   if (!currentSimulationId.value) return
   
   try {
-    // 先检查模拟环境是否存活
+    // First check if simulation environment is alive
     const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
-      addLog('检测到模拟环境正在运行，正在Close...')
+      addLog('Simulation environment detected as running, closing...')
       
-      // 尝试优雅Close模拟环境
+      // Try graceful close of simulation environment
       try {
         const closeRes = await closeSimulationEnv({ 
           simulation_id: currentSimulationId.value,
-          timeout: 10  // 10秒超时
+          timeout: 10  // 10 second timeout
         })
         
         if (closeRes.success) {
           addLog('✓ Simulation environment closed')
         } else {
-          addLog(`Close模拟环境Failed: ${closeRes.error || '未知Error'}`)
-          // 如果优雅CloseFailed，尝试强制停止
+          addLog(`Close simulation environment failed: ${closeRes.error || 'unknown error'}`)
+          // If graceful close failed, try force stop
           await forceStopSimulation()
         }
       } catch (closeErr) {
-        addLog(`Close模拟环境异常: ${closeErr.message}`)
-        // 如果优雅Close异常，尝试强制停止
+        addLog(`Close simulation environment error: ${closeErr.message}`)
+        // If graceful close errored, try force stop
         await forceStopSimulation()
       }
     } else {
-      // 环境未运行，但可能进程还在，检查模拟状态
+      // Environment not running, but process may still exist, check simulation status
       const simRes = await getSimulation(currentSimulationId.value)
       if (simRes.success && simRes.data?.status === 'running') {
-        addLog('检测到模拟状态为运行中，正在停止...')
+        addLog('Simulation status detected as running, stopping...')
         await forceStopSimulation()
       }
     }
   } catch (err) {
-    // 检查环境状态Failed不影响后续流程
-    console.warn('检查模拟状态Failed:', err)
+    // Checking environment status failure does not affect subsequent flow
+    console.warn('Checking simulation status failed:', err)
   }
 }
 
 /**
- * 强制停止模拟
+ * Force stop simulation
  */
 const forceStopSimulation = async () => {
   try {
@@ -228,10 +228,10 @@ const forceStopSimulation = async () => {
     if (stopRes.success) {
       addLog('✓ Simulation force stopped')
     } else {
-      addLog(`强制停止模拟Failed: ${stopRes.error || '未知Error'}`)
+      addLog(`Force stop simulation failed: ${stopRes.error || 'unknown error'}`)
     }
   } catch (err) {
-    addLog(`强制停止模拟异常: ${err.message}`)
+    addLog(`Force stop simulation error: ${err.message}`)
   }
 }
 
@@ -239,26 +239,26 @@ const loadSimulationData = async () => {
   try {
     addLog(`Loading simulation data: ${currentSimulationId.value}`)
     
-    // 获取 simulation Info
+    // Get simulation info
     const simRes = await getSimulation(currentSimulationId.value)
     if (simRes.success && simRes.data) {
       const simData = simRes.data
       
-      // 获取 project Info
+      // Get project info
       if (simData.project_id) {
         const projRes = await getProject(simData.project_id)
         if (projRes.success && projRes.data) {
           projectData.value = projRes.data
           addLog(`Project loaded successfully: ${projRes.data.project_id}`)
           
-          // 获取 graph 数据
+          // Get graph data
           if (projRes.data.graph_id) {
             await loadGraph(projRes.data.graph_id)
           }
         }
       }
     } else {
-      addLog(`Loading simulation dataFailed: ${simRes.error || '未知Error'}`)
+      addLog(`Loading simulation data failed: ${simRes.error || 'unknown error'}`)
     }
   } catch (err) {
     addLog(`Load error: ${err.message}`)
@@ -271,10 +271,10 @@ const loadGraph = async (graphId) => {
     const res = await getGraphData(graphId)
     if (res.success) {
       graphData.value = res.data
-      addLog('Graph View数据加载Success')
+      addLog('Graph View data loaded successfully')
     }
   } catch (err) {
-    addLog(`Graph View加载Failed: ${err.message}`)
+    addLog(`Graph View load failed: ${err.message}`)
   } finally {
     graphLoading.value = false
   }
@@ -287,9 +287,9 @@ const refreshGraph = () => {
 }
 
 onMounted(async () => {
-  addLog('SimulationView 初始化')
+  addLog('SimulationView initialized')
   
-  // 检查并Close正在运行的模拟（用户从 Step 3 Back时）
+  // Check and close running simulation (when user goes back from Step 3)
   await checkAndStopRunningSimulation()
   
   // Loading simulation data
