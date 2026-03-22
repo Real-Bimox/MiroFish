@@ -8,6 +8,9 @@ RUN apt-get update \
 # Copy uv from official image
 COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 
+# jupyterlab-pygments 0.4.0 ships a wheel named 0.3.0 — skip the mismatch check
+ENV UV_SKIP_WHEEL_FILENAME_CHECK=1
+
 WORKDIR /app
 
 # Copy dependency description files first to leverage cache
