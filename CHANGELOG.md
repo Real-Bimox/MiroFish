@@ -7,6 +7,33 @@ Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
 
+## v0.4.1-generica (2026-03-23)
+
+### Notes
+- No code changes to MiroFish in this release.
+- **Generica v6.6.0** completes the integration on the Generica side: simulation API routes, a `/simulations` UI page, DataSyncManager bidirectional sync, and ServiceIntegrationLayer singleton are all live. See [Generica CHANGELOG](https://github.com/Real-Bimox/Generica/blob/master/CHANGELOG.md) and [Generica docs/MIROFISH_INTEGRATION.md](https://github.com/Real-Bimox/Generica/blob/master/docs/MIROFISH_INTEGRATION.md) for details.
+
+### Integration status with Generica v6.6.0
+| MiroFish endpoint | Used by Generica |
+|-------------------|-----------------|
+| `GET /health` | Health monitoring (ServiceCoordinationManager) |
+| `POST /api/graph/ontology/generate` | MiroFishService.generateOntology() |
+| `POST /api/graph/build` | MiroFishService.buildGraph() |
+| `GET /api/graph/project/list` | /api/mirofish/projects proxy |
+| `POST /api/simulation/create` | Simulation step 1 |
+| `POST /api/simulation/prepare` | Simulation step 2 |
+| `POST /api/simulation/prepare/status` | Simulation step 2 polling |
+| `POST /api/simulation/start` | Simulation step 3 |
+| `GET /api/simulation/<id>` | Simulation step 4 polling |
+| `POST /api/simulation/stop` | Simulation cancel |
+| `POST /api/report/generate` | Simulation step 5 |
+| `POST /api/report/generate/status` | Simulation step 5 polling |
+| `GET /api/report/<id>` | Report retrieval |
+| `GET /api/report/by-simulation/<id>` | Report retrieval fallback |
+| `GET /api/simulation/list` | DataSyncManager periodic sync |
+
+---
+
 ## v0.4.1 (2026-03-22)
 
 ### Changed
