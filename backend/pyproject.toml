@@ -1,6 +1,6 @@
 [project]
 name = "mirofish-backend"
-version = "0.5.0"
+version = "0.5.1"
 description = "MiroFish - A Simple and Universal Swarm Intelligence Engine, Predicting Anything"
 requires-python = ">=3.11"
 license = { text = "AGPL-3.0" }
