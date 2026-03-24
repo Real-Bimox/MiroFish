@@ -261,10 +261,10 @@ const dismissFinishedHint = () => {
   showSimulationFinishedHint.value = false
 }
 
-// Watch isSimulating changes，Detect simulation end
+// Watch isSimulating changes, detect simulation end
 watch(() => props.isSimulating, (newValue, oldValue) => {
   if (wasSimulating.value && !newValue) {
-    // From simulating to not simulating，Show end hint
+    // From simulating to not simulating, show end hint
     showSimulationFinishedHint.value = true
   }
   wasSimulating.value = newValue
@@ -362,16 +362,16 @@ const renderGraph = () => {
   
   const nodeIds = new Set(nodes.map(n => n.id))
   
-  // Process edge data，Calculate edge count and index between node pairs
+  // Process edge data, calculate edge count and index between node pairs
   const edgePairCount = {}
   const selfLoopEdges = {} // Self-loop edges grouped by nodes
   const tempEdges = edgesData
     .filter(e => nodeIds.has(e.source_node_uuid) && nodeIds.has(e.target_node_uuid))
   
-  // Count edges between node pairs，Collect self-loop edges
+  // Count edges between node pairs, collect self-loop edges
   tempEdges.forEach(e => {
     if (e.source_node_uuid === e.target_node_uuid) {
-      // 自环 - 收集到数组中
+      // Self-loop - collect into array
       if (!selfLoopEdges[e.source_node_uuid]) {
         selfLoopEdges[e.source_node_uuid] = []
       }
@@ -386,7 +386,7 @@ const renderGraph = () => {
     }
   })
   
-  // 记录当前处理到每对Nodes的第几条边
+  // Track the current edge index for each pair of nodes
   const edgePairIndex = {}
   const processedSelfLoopNodes = new Set() // Processed self-loop nodes
   
@@ -396,7 +396,7 @@ const renderGraph = () => {
     const isSelfLoop = e.source_node_uuid === e.target_node_uuid
     
     if (isSelfLoop) {
-      // 自环边 - 每个Nodes只添加一条合并的自环
+      // Self-loop edge - only add one merged self-loop per node
       if (processedSelfLoopNodes.has(e.source_node_uuid)) {
         return // Already processed, skip
       }
@@ -428,19 +428,19 @@ const renderGraph = () => {
     const currentIndex = edgePairIndex[pairKey] || 0
     edgePairIndex[pairKey] = currentIndex + 1
     
-    // Check if edge direction matches standard direction（Source UUID < Target UUID）
+    // Check if edge direction matches standard direction (Source UUID < Target UUID)
     const isReversed = e.source_node_uuid > e.target_node_uuid
     
-    // Calculate curvature：Spread when multiple edges，Straight line for single edge
+    // Calculate curvature: spread when multiple edges, straight line for single edge
     let curvature = 0
     if (totalCount > 1) {
-      // Evenly distribute curvature，Ensure clear distinction
-      // Curvature range increases with edge count，边越多曲率范围越大
+      // Evenly distribute curvature, ensure clear distinction
+      // Curvature range increases with edge count, wider range for more edges
       const curvatureRange = Math.min(1.2, 0.6 + totalCount * 0.15)
       curvature = ((currentIndex / (totalCount - 1)) - 0.5) * curvatureRange * 2
       
-      // 如果Edge direction opposite to standard，Flip curvature
-      // 这样Ensure all edges distributed in same reference，No overlap due to direction differences
+      // If edge direction is opposite to standard, flip curvature
+      // This ensures all edges are distributed in the same reference frame, no overlap due to direction differences
       if (isReversed) {
         curvature = -curvature
       }
@@ -480,7 +480,7 @@ const renderGraph = () => {
     .force('charge', d3.forceManyBody().strength(-400))
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('collide', d3.forceCollide(50))
-    // Add attraction toward center，让Gather independent node groups to center
+    // Add attraction toward center, gather independent node groups to center
     .force('x', d3.forceX(width / 2).strength(0.04))
     .force('y', d3.forceY(height / 2).strength(0.04))
   
@@ -510,7 +510,7 @@ const renderGraph = () => {
       const y1 = sy - 4
       const x2 = sx + 8  // End offset
       const y2 = sy + 4
-      // Use arc to draw self-loop（sweep-flag=1 clockwise）
+      // Use arc to draw self-loop (sweep-flag=1 clockwise)
       return `M${x1},${y1} A${loopRadius},${loopRadius} 0 1,1 ${x2},${y2}`
     }
     
@@ -522,10 +522,10 @@ const renderGraph = () => {
     // Calculate curve control points - Dynamically adjust based on edge count and distance
     const dx = tx - sx, dy = ty - sy
     const dist = Math.sqrt(dx * dx + dy * dy)
-    // Offset perpendicular to connection direction，Calculate based on distance ratio，Ensure curve is clearly visible
+    // Offset perpendicular to connection direction, calculate based on distance ratio, ensure curve is clearly visible
     // More edges, larger offset ratio
     const pairTotal = d.pairTotal || 1
-    const offsetRatio = 0.25 + pairTotal * 0.05 // 基础25%，每多一条边增加5%
+    const offsetRatio = 0.25 + pairTotal * 0.05 // Base 25%, add 5% per additional edge
     const baseOffset = Math.max(35, dist * offsetRatio)
     const offsetX = -dy / dist * d.curvature * baseOffset
     const offsetY = dx / dist * d.curvature * baseOffset
@@ -535,7 +535,7 @@ const renderGraph = () => {
     return `M${sx},${sy} Q${cx},${cy} ${tx},${ty}`
   }
   
-  // Calculate curve midpoint（For label positioning）
+  // Calculate curve midpoint (for label positioning)
   const getLinkMidpoint = (d) => {
     const sx = d.source.x, sy = d.source.y
     const tx = d.target.x, ty = d.target.y
@@ -661,7 +661,7 @@ const renderGraph = () => {
     .style('cursor', 'pointer')
     .call(d3.drag()
       .on('start', (event, d) => {
-        // Only record position, don't restart simulation（区分点击和拖拽）
+        // Only record position, don't restart simulation (distinguish click from drag)
         d.fx = d.x
         d.fy = d.y
         d._dragStartX = event.x
@@ -669,13 +669,13 @@ const renderGraph = () => {
         d._isDragging = false
       })
       .on('drag', (event, d) => {
-        // Detect if dragging really started（Move exceeds threshold）
+        // Detect if dragging really started (move exceeds threshold)
         const dx = event.x - d._dragStartX
         const dy = event.y - d._dragStartY
         const distance = Math.sqrt(dx * dx + dy * dy)
         
         if (!d._isDragging && distance > 3) {
-          // First detected real drag，才Restart simulation
+          // First detected real drag, restart simulation
           d._isDragging = true
           simulation.alphaTarget(0.3).restart()
         }
@@ -686,7 +686,7 @@ const renderGraph = () => {
         }
       })
       .on('end', (event, d) => {
-        // 只有Only stop simulation after real drag
+        // Only stop simulation after real drag
         if (d._isDragging) {
           simulation.alphaTarget(0)
         }
@@ -742,16 +742,16 @@ const renderGraph = () => {
     // Update curve path
     link.attr('d', d => getLinkPath(d))
     
-    // 更新边标签位置（无旋转，水平显示更清晰）
+    // Update edge label positions (no rotation, horizontal display is clearer)
     linkLabels.each(function(d) {
       const mid = getLinkMidpoint(d)
       d3.select(this)
         .attr('x', mid.x)
         .attr('y', mid.y)
-        .attr('transform', '') // 移除旋转，保持水平
+        .attr('transform', '') // Remove rotation, keep horizontal
     })
     
-    // 更新边标签背景
+    // Update edge label backgrounds
     linkLabelBg.each(function(d, i) {
       const mid = getLinkMidpoint(d)
       const textEl = linkLabels.nodes()[i]
@@ -761,7 +761,7 @@ const renderGraph = () => {
         .attr('y', mid.y - bbox.height / 2 - 2)
         .attr('width', bbox.width + 8)
         .attr('height', bbox.height + 4)
-        .attr('transform', '') // 移除旋转
+        .attr('transform', '') // Remove rotation
     })
 
     node
@@ -773,7 +773,7 @@ const renderGraph = () => {
       .attr('y', d => d.y)
   })
   
-  // 点击空白处Close详情面板
+  // Click on blank area to close the detail panel
   svg.on('click', () => {
     selectedItem.value = null
     node.attr('stroke', '#fff').attr('stroke-width', 2.5)
@@ -787,7 +787,7 @@ watch(() => props.graphData, () => {
   nextTick(renderGraph)
 }, { deep: true })
 
-// 监听边标签显示开关
+// Watch edge label display toggle
 watch(showEdgeLabels, (newVal) => {
   if (linkLabelsRef) {
     linkLabelsRef.style('display', newVal ? 'block' : 'none')
@@ -1250,7 +1250,7 @@ input:checked + .slider:before {
   50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.6)); }
 }
 
-/* Post-simulation hint样式 */
+/* Post-simulation hint styles */
 .graph-building-hint.finished-hint {
   background: rgba(0, 0, 0, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.1);

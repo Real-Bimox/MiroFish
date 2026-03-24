@@ -196,12 +196,12 @@ git commit -m "deps: replace zep-cloud with graphiti-core and neo4j driver"
 
 In `backend/app/config.py`, replace:
 ```python
-    # Zep配置
+    # Zep configuration
     ZEP_API_KEY = os.environ.get('ZEP_API_KEY')
 ```
 With:
 ```python
-    # Graphiti / Neo4j 配置
+    # Graphiti / Neo4j configuration
     NEO4J_URI      = os.environ.get('NEO4J_URI',      'bolt://localhost:7687')
     NEO4J_USER     = os.environ.get('NEO4J_USER',     'neo4j')
     NEO4J_PASSWORD = os.environ.get('NEO4J_PASSWORD', 'password')

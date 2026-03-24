@@ -36,10 +36,10 @@ Extensive Chinese comments and docstrings throughout the backend codebase. These
 **Examples Found:**
 ```python
 # backend/app/api/graph.py
-图谱相关API路由  # Graph-related API routes
-采用项目上下文机制，服务端持久化状态  # Uses project context mechanism, server-side persistent state
-获取项目详情  # Get project details
-项目不存在  # Project does not exist
+Graph-related API routes  # Graph-related API routes
+Uses project context mechanism, server-side persistent state  # Uses project context mechanism, server-side persistent state
+Get project details  # Get project details
+Project not found  # Project does not exist
 ```
 
 **Recommendation:** 
@@ -57,17 +57,17 @@ Chinese error messages returned to users through API responses.
 **Examples Found:**
 ```python
 # backend/app/api/graph.py:163
-"error": "请提供模拟需求描述 (simulation_requirement)"
+"error": "Please provide simulation requirement description (simulation_requirement)"
 
 # backend/app/api/graph.py:171
-"error": "请至少上传一个文档文件"
+"error": "Please upload at least one document file"
 
 # backend/app/api/graph.py:312
-"error": f"项目不存在: {project_id}"
+"error": f"Project not found: {project_id}"
 
 # backend/app/api/simulation.py:304
-# - ready: 准备完成，可以运行
-# - preparing: 如果 config_generated=True 说明已完成
+# - ready: preparation complete, ready to run
+# - preparing: if config_generated=True then complete
 ```
 
 **Translation Impact:**
@@ -90,12 +90,13 @@ Chinese log messages used for debugging and monitoring.
 **Examples Found:**
 ```python
 # backend/app/api/graph.py
-logger.info("=== 开始生成本体定义 ===")
-logger.info(f"文本提取完成，共 {len(all_text)} 字符")
-logger.info(f"本体生成完成: {entity_count} 个实体类型, {edge_count} 个关系类型")
+logger.info("=== Starting ontology generation ===")
+
+logger.info(f"Text extraction completed, {len(all_text)} characters total")
+logger.info(f"Ontology generation complete: {entity_count} entity types, {edge_count} relationship types")
 
 # backend/app/services/simulation_runner.py
-logger.info(f"[进程内运行] {platform} 模拟完成")
+logger.info(f"[In-process run] {platform} simulation complete")
 ```
 
 **Translation Impact:**
@@ -118,14 +119,14 @@ Chinese status messages shown during long-running operations.
 **Examples Found:**
 ```python
 # backend/app/api/simulation.py
-"reading": "读取图谱实体",
-"generating_profiles": "生成Agent人设",
-"generating_config": "生成模拟配置",
-"copying_scripts": "准备模拟脚本"
+"reading": "Reading graph entities",
+"generating_profiles": "Generating agent profiles",
+"generating_config": "Generating simulation config",
+"copying_scripts": "Preparing simulation scripts"
 
-message="初始化Report Agent..."
-message="文本分块中..."
-message=f"处理文本块 {processed}/{total}..."
+message="Initializing Report Agent..."
+message="Chunking text..."
+message=f"Processing text chunk {processed}/{total}..."
 ```
 
 **Translation Impact:**
@@ -148,9 +149,9 @@ Chinese content in README files (mostly image filenames and links).
 **Examples Found:**
 ```markdown
 # README.md
-[English](./README-EN.md) | [中文文档](./README.md)
-<img src="./static/image/Screenshot/运行截图1.png" alt="Screenshot 1" width="100%"/>
-<img src="./static/image/QQ群.png" alt="QQ Group" width="60%"/>
+[English](./README-EN.md) | [Chinese Documentation](./README.md)
+<img src="./static/image/Screenshot/screenshot_1.png" alt="Screenshot 1" width="100%"/>
+<img src="./static/image/qq_group.png" alt="QQ Group" width="60%"/>
 ```
 
 **Translation Impact:**
@@ -171,10 +172,10 @@ Keep dual-language READMEs; rename image files only if necessary.
 Chinese filenames referenced in documentation.
 
 **Examples Found:**
-- `运行截图1.png` (Runtime Screenshot 1)
-- `武大模拟演示封面.png` (Wuhan University Simulation Demo Cover)
-- `红楼梦模拟推演封面.jpg` (Dream of Red Chamber Simulation Cover)
-- `QQ群.png` (QQ Group)
+- `screenshot_1.png` (Runtime Screenshot 1)
+- `whu_simulation_demo_cover.png` (Wuhan University Simulation Demo Cover)
+- `dream_red_chamber_simulation_cover.jpg` (Dream of Red Chamber Simulation Cover)
+- `qq_group.png` (QQ Group)
 
 **Translation Impact:**
 - **Pros:** ASCII-safe filenames
@@ -196,9 +197,9 @@ Chinese comments in frontend JavaScript API files.
 **Examples Found:**
 ```javascript
 // frontend/src/api/simulation.js
-// 创建模拟
-// 准备模拟
-// 查询准备状态
+// Create simulation
+// Prepare simulation
+// Query preparation status
 ```
 
 **Translation Impact:**
@@ -334,27 +335,27 @@ Implement **Option 1 (Full i18n)** for user-facing content and **Option 3 (Phase
 ### Error Messages
 | Chinese | English Translation |
 |---------|---------------------|
-| 项目不存在 | Project not found |
-| 请提供模拟需求描述 | Please provide simulation requirement description |
-| 请至少上传一个文档文件 | Please upload at least one document file |
-| 配置错误 | Configuration error |
-| 图谱构建任务已启动 | Graph build task started |
+| Project not found | Project not found |
+| Please provide simulation requirement description | Please provide simulation requirement description |
+| Please upload at least one document file | Please upload at least one document file |
+| Configuration error | Configuration error |
+| Graph build task started | Graph build task started |
 
 ### Log Messages
 | Chinese | English Translation |
 |---------|---------------------|
-| 开始生成本体定义 | Starting ontology generation |
-| 文本提取完成 | Text extraction completed |
-| 构建图谱 | Building graph |
-| 处理文本块 | Processing text chunk |
+| Starting ontology generation | Starting ontology generation |
+| Text extraction completed | Text extraction completed |
+| Building graph | Building graph |
+| Processing text chunk | Processing text chunk |
 
 ### Status Messages
 | Chinese | English Translation |
 |---------|---------------------|
-| 读取图谱实体 | Reading graph entities |
-| 生成Agent人设 | Generating agent profiles |
-| 生成模拟配置 | Generating simulation config |
-| 准备模拟脚本 | Preparing simulation scripts |
+| Reading graph entities | Reading graph entities |
+| Generating agent profiles | Generating agent profiles |
+| Generating simulation config | Generating simulation config |
+| Preparing simulation scripts | Preparing simulation scripts |
 
 ---
 

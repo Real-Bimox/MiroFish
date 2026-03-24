@@ -261,7 +261,7 @@
               
               <!-- Generated ontology info -->
               <div class="detail-section" v-if="projectData?.ontology">
-                <div class="detail-label">生成的实体类型 ({{ projectData.ontology.entity_types?.length || 0 }})</div>
+                <div class="detail-label">Generated Entity Types ({{ projectData.ontology.entity_types?.length || 0 }})</div>
                 <div class="entity-tags">
                   <span 
                     v-for="entity in projectData.ontology.entity_types" 
@@ -274,7 +274,7 @@
               </div>
               
               <div class="detail-section" v-if="projectData?.ontology">
-                <div class="detail-label">生成的Relationships类型 ({{ projectData.ontology.relation_types?.length || 0 }})</div>
+                <div class="detail-label">Generated Relationship Types ({{ projectData.ontology.relation_types?.length || 0 }})</div>
                 <div class="relation-list">
                   <div 
                     v-for="(rel, idx) in projectData.ontology.relation_types?.slice(0, 5) || []" 
@@ -288,7 +288,7 @@
                     <span class="rel-target">{{ rel.target_type }}</span>
                   </div>
                   <div v-if="(projectData.ontology.relation_types?.length || 0) > 5" class="relation-more">
-                    +{{ projectData.ontology.relation_types.length - 5 }} 更多Relationships...
+                    +{{ projectData.ontology.relation_types.length - 5 }} more relationships...
                   </div>
                 </div>
               </div>
@@ -315,7 +315,7 @@
             
             <div class="phase-detail">
               <div class="detail-section">
-                <div class="detail-label">接口说明</div>
+                <div class="detail-label">API Description</div>
                 <div class="detail-content">
                   Based on the generated ontology, documents are chunked and the Zep API is called to build the knowledge Graph View, extracting entities and relationships
                 </div>
@@ -424,7 +424,7 @@ const router = useRouter()
 // Current Project ID (may change from 'new' to actual ID)
 const currentProjectId = ref(route.params.projectId)
 
-// 状态
+// State
 const loading = ref(true)
 const graphLoading = ref(false)
 const error = ref('')
@@ -436,14 +436,14 @@ const currentPhase = ref(-1) // -1: uploading, 0: ontology generation, 1: graph 
 const selectedItem = ref(null) // selected nodes or edges
 const isFullScreen = ref(false)
 
-// DOM引用
+// DOM refs
 const graphContainer = ref(null)
 const graphSvg = ref(null)
 
 // Polling timer
 let pollTimer = null
 
-// 计算属性
+// Computed properties
 const statusClass = computed(() => {
   if (error.value) return 'error'
   if (currentPhase.value >= 2) return 'completed'
@@ -475,7 +475,7 @@ const entityTypes = computed(() => {
   return Object.values(typeMap)
 })
 
-// 方法
+// Methods
 const goHome = () => {
   router.push('/')
 }
@@ -498,7 +498,7 @@ const closeDetailPanel = () => {
   selectedItem.value = null
 }
 
-// 格式化日期
+// Format date
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   try {
@@ -860,7 +860,7 @@ const loadGraph = async (graphId) => {
   }
 }
 
-// 渲染Graph View (D3.js)
+// Render Graph View (D3.js)
 const renderGraph = () => {
   if (!graphSvg.value || !graphData.value) {
     console.log('Cannot render: svg or data missing')
@@ -873,7 +873,7 @@ const renderGraph = () => {
     return
   }
   
-  // 获取容器尺寸
+  // Get container dimensions
   const rect = container.getBoundingClientRect()
   const width = rect.width || 800
   const height = (rect.height || 600) - 60
@@ -892,7 +892,7 @@ const renderGraph = () => {
   
   svg.selectAll('*').remove()
   
-  // 处理Nodes数据
+  // Process node data
   const nodesData = graphData.value.nodes || []
   const edgesData = graphData.value.edges || []
   
@@ -908,7 +908,7 @@ const renderGraph = () => {
     return
   }
   
-  // 创建Nodes映射用于查找名称
+  // Create node map for name lookup
   const nodeMap = {}
   nodesData.forEach(n => {
     nodeMap[n.uuid] = n
@@ -939,13 +939,13 @@ const renderGraph = () => {
   
   console.log('Nodes:', nodes.length, 'Edges:', edges.length)
   
-  // 颜色映射
+  // Color mapping
   const types = [...new Set(nodes.map(n => n.type))]
   const colorScale = d3.scaleOrdinal()
     .domain(types)
     .range(['#FF6B35', '#004E89', '#7B2D8E', '#1A936F', '#C5283D', '#E9724C', '#2D3436', '#6C5CE7'])
   
-  // 力导向布局
+  // Force-directed layout
   const simulation = d3.forceSimulation(nodes)
     .force('link', d3.forceLink(edges).id(d => d.id).distance(100).strength(0.5))
     .force('charge', d3.forceManyBody().strength(-300))
@@ -954,7 +954,7 @@ const renderGraph = () => {
     .force('x', d3.forceX(width / 2).strength(0.05))
     .force('y', d3.forceY(height / 2).strength(0.05))
   
-  // 添加缩放功能
+  // Add zoom functionality
   const g = svg.append('g')
   
   svg.call(d3.zoom()
@@ -977,7 +977,7 @@ const renderGraph = () => {
       selectEdge(d.rawData)
     })
   
-  // 可见的细线
+  // Visible thin lines
   const link = linkGroup.append('line')
     .attr('stroke', '#ccc')
     .attr('stroke-width', 1.5)
@@ -988,7 +988,7 @@ const renderGraph = () => {
     .attr('stroke', 'transparent')
     .attr('stroke-width', 10)
   
-  // 边标签
+  // Edge labels
   const linkLabel = g.append('g')
     .attr('class', 'link-labels')
     .selectAll('text')
@@ -1000,7 +1000,7 @@ const renderGraph = () => {
     .attr('text-anchor', 'middle')
     .text(d => d.type.length > 15 ? d.type.substring(0, 12) + '...' : d.type)
   
-  // 绘制Nodes
+  // Draw nodes
   const node = g.append('g')
     .attr('class', 'nodes')
     .selectAll('g')
@@ -1078,7 +1078,7 @@ watch(graphData, () => {
   }
 })
 
-// 生命周期
+// Lifecycle hooks
 onMounted(() => {
   initProject()
 })
@@ -1090,7 +1090,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 变量 */
+/* Variables */
 :root {
   --black: #000000;
   --white: #FFFFFF;
@@ -1107,7 +1107,7 @@ onUnmounted(() => {
   overflow: hidden; /* Prevent body scroll in fullscreen */
 }
 
-/* 导航栏 */
+/* Navigation bar */
 .navbar {
   display: flex;
   align-items: center;
@@ -1193,14 +1193,14 @@ onUnmounted(() => {
   color: #999;
 }
 
-/* 主内容区 */
+/* Main content area */
 .main-content {
   display: flex;
   height: calc(100vh - 56px);
   position: relative;
 }
 
-/* 左侧面板 - 50% default */
+/* Left panel - 50% default */
 .left-panel {
   width: 50%;
   flex: none; /* Fixed width initially */
@@ -1310,7 +1310,7 @@ onUnmounted(() => {
   to { transform: rotate(360deg); }
 }
 
-/* Graph View容器 */
+/* Graph View container */
 .graph-container {
   flex: 1;
   position: relative;
@@ -1542,7 +1542,7 @@ onUnmounted(() => {
   color: #666;
 }
 
-/* Edge DetailsRelationships展示 */
+/* Edge Details Relationships display */
 .edge-relation {
   display: flex;
   align-items: center;
@@ -1586,7 +1586,7 @@ onUnmounted(() => {
   border-bottom: 1px solid #E0E0E0;
 }
 
-/* Properties 属性列表 */
+/* Properties list */
 .properties-list {
   margin-top: 8px;
   padding: 10px;
@@ -1615,7 +1615,7 @@ onUnmounted(() => {
   word-break: break-word;
 }
 
-/* Episodes 列表 */
+/* Episodes list */
 .episodes-list {
   margin-top: 8px;
   display: flex;
@@ -1640,7 +1640,7 @@ onUnmounted(() => {
   margin-bottom: 10px;
 }
 
-/* Graph View图例 */
+/* Graph View legend */
 .graph-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1671,7 +1671,7 @@ onUnmounted(() => {
   color: #999;
 }
 
-/* 右侧面板 - 50% default */
+/* Right panel - 50% default */
 .right-panel {
   width: 50%;
   flex: none;
@@ -1701,14 +1701,14 @@ onUnmounted(() => {
   margin-right: 8px;
 }
 
-/* 流程内容 */
+/* Process content */
 .process-content {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
 }
 
-/* 流程阶段 */
+/* Process phases */
 .process-phase {
   margin-bottom: 24px;
   border: 1px solid #E0E0E0;
@@ -1794,12 +1794,12 @@ onUnmounted(() => {
   color: #fff;
 }
 
-/* 阶段详情 */
+/* Phase details */
 .phase-detail {
   padding: 16px;
 }
 
-/* 实体标签 */
+/* Entity tags */
 .entity-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1814,7 +1814,7 @@ onUnmounted(() => {
   color: #333;
 }
 
-/* Relationships列表 */
+/* Relationships list */
 .relation-list {
   font-size: 0.8rem;
 }
@@ -1851,7 +1851,7 @@ onUnmounted(() => {
   font-size: 0.75rem;
 }
 
-/* 本体生成进度 */
+/* Ontology generation progress */
 .ontology-progress {
   display: flex;
   align-items: center;
@@ -1875,7 +1875,7 @@ onUnmounted(() => {
   color: #333;
 }
 
-/* 等待状态 */
+/* Waiting state */
 .waiting-state {
   padding: 16px;
   background: #F9F9F9;
@@ -1888,7 +1888,7 @@ onUnmounted(() => {
   color: #999;
 }
 
-/* 进度条 */
+/* Progress bar */
 .progress-bar {
   height: 6px;
   background: #E0E0E0;
@@ -1917,7 +1917,7 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-/* 构建结果 */
+/* Build results */
 .build-result {
   display: flex;
   gap: 16px;
@@ -1945,7 +1945,7 @@ onUnmounted(() => {
   letter-spacing: 0.05em;
 }
 
-/* Next按钮 */
+/* Next button */
 .next-step-section {
   margin-top: 24px;
   padding-top: 24px;
@@ -1982,7 +1982,7 @@ onUnmounted(() => {
   font-size: 1.2rem;
 }
 
-/* 项目Info面板 */
+/* Project info panel */
 .project-panel {
   border-top: 1px solid #E0E0E0;
   background: #FAFAFA;
@@ -2040,7 +2040,7 @@ onUnmounted(() => {
   color: #666;
 }
 
-/* 响应式 */
+/* Responsive */
 @media (max-width: 1024px) {
   .main-content {
     flex-direction: column;

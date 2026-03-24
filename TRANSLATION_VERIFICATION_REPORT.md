@@ -174,10 +174,10 @@ Located in `report_agent.py` and other service files:
 ### 2. Text Processing Punctuation
 Located in `file_parser.py` (line 175):
 ```python
-sentence_delimiters = set('.。！？!?.。')
+sentence_delimiters = set('.\u3002\uff01\uff1f!?.\u3002')
 ```
 
-**Reason:** These Chinese punctuation marks (`'。'`, `'！'`, `'？'`) are sentence boundary markers for multilingual text processing.
+**Reason:** These Chinese punctuation marks (U+3002, U+FF01, U+FF1F) are sentence boundary markers for multilingual text processing.
 
 ---
 
@@ -185,15 +185,15 @@ sentence_delimiters = set('.。！？!?.。')
 
 | Old Filename | New Filename | Status |
 |--------------|--------------|--------|
-| `QQ群.png` | `qq_group.png` | ✅ Renamed & references updated |
-| `武大模拟演示封面.png` | `whu_simulation_demo_cover.png` | ✅ Renamed & references updated |
-| `红楼梦模拟推演封面.jpg` | `dream_red_chamber_simulation_cover.jpg` | ✅ Renamed & references updated |
-| `运行截图1.png` | `screenshot_1.png` | ✅ Renamed & references updated |
-| `运行截图2.png` | `screenshot_2.png` | ✅ Renamed & references updated |
-| `运行截图3.png` | `screenshot_3.png` | ✅ Renamed & references updated |
-| `运行截图4.png` | `screenshot_4.png` | ✅ Renamed & references updated |
-| `运行截图5.png` | `screenshot_5.png` | ✅ Renamed & references updated |
-| `运行截图6.png` | `screenshot_6.png` | ✅ Renamed & references updated |
+| `qq_group.png` | `qq_group.png` | ✅ Renamed & references updated |
+| `whu_simulation_demo_cover.png` | `whu_simulation_demo_cover.png` | ✅ Renamed & references updated |
+| `dream_red_chamber_simulation_cover.jpg` | `dream_red_chamber_simulation_cover.jpg` | ✅ Renamed & references updated |
+| `screenshot_1.png` | `screenshot_1.png` | ✅ Renamed & references updated |
+| `screenshot_2.png` | `screenshot_2.png` | ✅ Renamed & references updated |
+| `screenshot_3.png` | `screenshot_3.png` | ✅ Renamed & references updated |
+| `screenshot_4.png` | `screenshot_4.png` | ✅ Renamed & references updated |
+| `screenshot_5.png` | `screenshot_5.png` | ✅ Renamed & references updated |
+| `screenshot_6.png` | `screenshot_6.png` | ✅ Renamed & references updated |
 
 ---
 

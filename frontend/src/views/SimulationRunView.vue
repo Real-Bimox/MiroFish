@@ -87,9 +87,9 @@ const viewMode = ref('split')
 
 // Data State
 const currentSimulationId = ref(route.params.simulationId)
-// 直接在初始化时从 query 参数获取 maxRounds，确保子组件能立即获取到值
+// Get maxRounds directly from query params at initialization to ensure child components can access it immediately
 const maxRounds = ref(route.query.maxRounds ? parseInt(route.query.maxRounds) : null)
-const minutesPerRound = ref(30) // 默认30 minutes per round
+const minutesPerRound = ref(30) // Default 30 minutes per round
 const projectData = ref(null)
 const graphData = ref(null)
 const graphLoading = ref(false)
@@ -148,7 +148,7 @@ const handleGoBack = async () => {
   // Before going back to Step 2, close running simulation
   addLog('Preparing to return to Step 2, closing simulation...')
   
-  // 停止轮询
+  // Stop polling
   stopGraphRefresh()
   
   try {
