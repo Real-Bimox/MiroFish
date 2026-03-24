@@ -13,8 +13,9 @@ flask-cors>=6.0.0
 # OpenAI SDK (unified OpenAI format for LLM calls)
 openai>=1.0.0
 
-# ============= Zep Cloud =============
-zep-cloud==3.13.0
+# ============= Graphiti / Neo4j =============
+graphiti-core>=0.28.2
+neo4j>=5.26.0
 
 # ============= OASIS Social Media Simulation =============
 # OASIS social simulation framework

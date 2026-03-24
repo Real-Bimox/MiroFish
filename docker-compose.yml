@@ -1,4 +1,22 @@
 services:
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - neo4j_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mirofish:
     image: ghcr.io/666ghj/mirofish:latest
     # Mirror for faster downloads (replace above if pull is slow)
@@ -9,6 +27,17 @@ services:
     ports:
       - "3000:3000"
       - "5001:5001"
-    restart: unless-stopped
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password
+    depends_on:
+      neo4j:
+        condition: service_healthy
     volumes:
       - ./backend/uploads:/app/backend/uploads
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
+    name: mirofish-neo4j-data
