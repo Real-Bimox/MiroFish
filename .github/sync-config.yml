@@ -20,6 +20,7 @@ protected_paths:
   - "backend/app/config.py"
   - "docker-compose.yml"
   - "CHANGELOG.md"
+  - "locales/*.json"
 
 # Default sync strategy: "rebase" or "merge"
 default_strategy: "rebase"
