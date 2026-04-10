@@ -3,26 +3,26 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <div class="brand" @click="router.push('/')">MIROFISH</div>
+        <div class="brand" @click="router.push('/')">{{ $t('nav.brand') }}</div>
       </div>
       
       <div class="header-center">
         <div class="view-switcher">
           <button 
-            v-for="mode in ['graph', 'split', 'workbench']" 
-            :key="mode"
+            v-for="mode in viewModes" 
+            :key="mode.key"
             class="switch-btn"
-            :class="{ active: viewMode === mode }"
-            @click="viewMode = mode"
+            :class="{ active: viewMode === mode.key }"
+            @click="viewMode = mode.key"
           >
-            {{ { graph: 'Graph View', split: 'Split View', workbench: 'Workbench' }[mode] }}
+            {{ mode.label }}
           </button>
         </div>
       </div>
 
       <div class="header-right">
         <div class="workflow-step">
-          <span class="step-num">Step {{ currentStep }}/5</span>
+          <span class="step-num">{{ $t('nav.step', { step: currentStep }) }}</span>
           <span class="step-name">{{ stepNames[currentStep - 1] }}</span>
         </div>
         <div class="step-divider"></div>
@@ -30,6 +30,7 @@
           <span class="dot"></span>
           {{ statusText }}
         </span>
+        <LanguageSwitcher />
       </div>
     </header>
 
@@ -77,21 +78,31 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import GraphPanel from '../components/GraphPanel.vue'
 import Step1GraphBuild from '../components/Step1GraphBuild.vue'
 import Step2EnvSetup from '../components/Step2EnvSetup.vue'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { generateOntology, getProject, buildGraph, getTaskStatus, getGraphData } from '../api/graph'
 import { getPendingUpload, clearPendingUpload } from '../store/pendingUpload'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 // Layout State
 const viewMode = ref('split') // graph | split | workbench
 
+// Computed view modes with translations
+const viewModes = computed(() => [
+  { key: 'graph', label: t('main.layoutGraph') },
+  { key: 'split', label: t('main.layoutSplit') },
+  { key: 'workbench', label: t('main.layoutWorkbench') }
+])
+
 // Step State
-const currentStep = ref(1) // 1: Graph View Build, 2: Environment Setup, 3: Start Simulation, 4: Report Generation, 5: Deep Interaction
-const stepNames = ['Graph View Build', 'Environment Setup', 'Start Simulation', 'Report Generation', 'Deep Interaction']
+const currentStep = ref(1)
+const stepNames = computed(() => t('main.stepNames'))
 
 // Data State
 const currentProjectId = ref(route.params.projectId)
@@ -130,11 +141,11 @@ const statusClass = computed(() => {
 })
 
 const statusText = computed(() => {
-  if (error.value) return 'Error'
-  if (currentPhase.value >= 2) return 'Ready'
-  if (currentPhase.value === 1) return 'Building Graph'
-  if (currentPhase.value === 0) return 'Generating Ontology'
-  return 'Initializing'
+  if (error.value) return t('main.statusError')
+  if (currentPhase.value >= 2) return t('main.statusReady')
+  if (currentPhase.value === 1) return t('main.statusBuildingGraph')
+  if (currentPhase.value === 0) return t('main.statusGeneratingOntology')
+  return t('main.statusInitializing')
 })
 
 // --- Helpers ---
@@ -159,7 +170,7 @@ const toggleMaximize = (target) => {
 const handleNextStep = (params = {}) => {
   if (currentStep.value < 5) {
     currentStep.value++
-    addLog(`Entering Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
+    addLog(`Entering Step ${currentStep.value}: ${stepNames.value[currentStep.value - 1]}`)
     
     // If entering Step 3 from Step 2, log simulation round configuration
     if (currentStep.value === 3 && params.maxRounds) {
@@ -171,7 +182,7 @@ const handleNextStep = (params = {}) => {
 const handleGoBack = () => {
   if (currentStep.value > 1) {
     currentStep.value--
-    addLog(`Back Step ${currentStep.value}: ${stepNames[currentStep.value - 1]}`)
+    addLog(`Back Step ${currentStep.value}: ${stepNames.value[currentStep.value - 1]}`)
   }
 }
 

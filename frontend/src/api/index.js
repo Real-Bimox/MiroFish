@@ -12,6 +12,10 @@ const service = axios.create({
 // Request interceptor
 service.interceptors.request.use(
   config => {
+    // Add Accept-Language header based on saved locale
+    const savedLocale = localStorage.getItem('locale') || 'en'
+    config.headers['Accept-Language'] = savedLocale
+    
     return config
   },
   error => {
