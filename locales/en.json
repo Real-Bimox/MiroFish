@@ -137,7 +137,11 @@
     "episodes": "Episodes",
     "validFrom": "Valid From",
     "invalidAt": "Invalid At",
-    "expiredAt": "Expired At"
+    "expiredAt": "Expired At",
+    "projectInfo": "Project Info",
+    "projectName": "Project Name",
+    "projectId": "Project ID",
+    "simulationRequirement": "Simulation Requirement"
   },
   "step2": {
     "title": "Environment Setup",

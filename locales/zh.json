@@ -137,7 +137,11 @@
     "episodes": "片段",
     "validFrom": "有效起始",
     "invalidAt": "失效时间",
-    "expiredAt": "过期时间"
+    "expiredAt": "过期时间",
+    "projectInfo": "项目信息",
+    "projectName": "项目名称",
+    "projectId": "项目ID",
+    "simulationRequirement": "模拟需求"
   },
   "step2": {
     "title": "环境搭建",
