@@ -258,5 +258,16 @@
     "unauthorized": "Unauthorized. Please log in.",
     "notFound": "Resource not found",
     "serverError": "Server error. Please try again later."
+  },
+  "api": {
+    "projectNotFound": "Project not found: {id}",
+    "projectDeleteFailed": "Project not found or deletion failed: {id}",
+    "projectDeleted": "Project deleted: {id}",
+    "projectReset": "Project reset: {id}",
+    "requireSimulationRequirement": "Please provide simulation requirement description (simulation_requirement)",
+    "requireFileUpload": "Please upload at least one document file",
+    "noDocProcessed": "No documents were successfully processed, please check file format",
+    "graphBuildStarted": "Graph build task started",
+    "configError": "Configuration error: {details}"
   }
 }

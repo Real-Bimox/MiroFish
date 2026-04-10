@@ -15,6 +15,7 @@ from ..services.graph_builder import GraphBuilderService
 from ..services.text_processor import TextProcessor
 from ..utils.file_parser import FileParser
 from ..utils.logger import get_logger
+from ..utils.locale import t
 from ..models.task import TaskManager, TaskStatus
 from ..models.project import ProjectManager, ProjectStatus
 
@@ -42,7 +43,7 @@ def get_project(project_id: str):
     if not project:
         return jsonify({
             "success": False,
-            "error": f"Project not found: {project_id}"
+            "error": t('api.projectNotFound', id=project_id)
         }), 404
     
     return jsonify({
@@ -76,12 +77,12 @@ def delete_project(project_id: str):
     if not success:
         return jsonify({
             "success": False,
-            "error": f"Project not found or deletion failed: {project_id}"
+            "error": t('api.projectDeleteFailed', id=project_id)
         }), 404
     
     return jsonify({
         "success": True,
-        "message": f"Project deleted: {project_id}"
+        "message": t('api.projectDeleted', id=project_id)
     })
 
 
@@ -160,7 +161,7 @@ def generate_ontology():
         if not simulation_requirement:
             return jsonify({
                 "success": False,
-                "error": "Please provide simulation requirement description (simulation_requirement)"
+                "error": t('api.requireSimulationRequirement')
             }), 400
         
         # Get uploaded files
@@ -168,7 +169,7 @@ def generate_ontology():
         if not uploaded_files or all(not f.filename for f in uploaded_files):
             return jsonify({
                 "success": False,
-                "error": "Please upload at least one document file"
+                "error": t('api.requireFileUpload')
             }), 400
         
         # Create project
@@ -203,7 +204,7 @@ def generate_ontology():
             ProjectManager.delete_project(project.project_id)
             return jsonify({
                 "success": False,
-                "error": "No documents were successfully processed, please check file format"
+                "error": t('api.noDocProcessed')
             }), 400
         
         # Save extracted text
@@ -275,7 +276,7 @@ def build_graph():
             "data": {
                 "project_id": "proj_xxxx",
                 "task_id": "task_xxxx",
-                "message": "Graph build task started"
+                "message": t('api.graphBuildStarted')
             }
         }
     """

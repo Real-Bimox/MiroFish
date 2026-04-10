@@ -258,5 +258,16 @@
     "unauthorized": "未授权。请登录。",
     "notFound": "未找到资源",
     "serverError": "服务器错误。请稍后重试。"
+  },
+  "api": {
+    "projectNotFound": "项目不存在: {id}",
+    "projectDeleteFailed": "项目不存在或删除失败: {id}",
+    "projectDeleted": "项目已删除: {id}",
+    "projectReset": "项目已重置: {id}",
+    "requireSimulationRequirement": "请提供模拟需求描述 (simulation_requirement)",
+    "requireFileUpload": "请至少上传一个文档文件",
+    "noDocProcessed": "没有成功处理任何文档，请检查文件格式",
+    "graphBuildStarted": "图谱构建任务已启动",
+    "configError": "配置错误: {details}"
   }
 }
