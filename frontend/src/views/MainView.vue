@@ -3,34 +3,35 @@
     <!-- Header -->
     <header class="app-header">
       <div class="header-left">
-        <div class="brand" @click="router.push('/')">{{ $t('nav.brand') }}</div>
+        <div class="brand" @click="router.push('/')">MIROFISH</div>
       </div>
       
       <div class="header-center">
         <div class="view-switcher">
           <button 
-            v-for="mode in viewModes" 
-            :key="mode.key"
+            v-for="mode in ['graph', 'split', 'workbench']" 
+            :key="mode"
             class="switch-btn"
-            :class="{ active: viewMode === mode.key }"
-            @click="viewMode = mode.key"
+            :class="{ active: viewMode === mode }"
+            @click="viewMode = mode"
           >
-            {{ mode.label }}
+            {{ { graph: $t('main.layoutGraph'), split: $t('main.layoutSplit'), workbench: $t('main.layoutWorkbench') }[mode] }}
           </button>
         </div>
       </div>
 
       <div class="header-right">
+        <LanguageSwitcher />
+        <div class="step-divider"></div>
         <div class="workflow-step">
-          <span class="step-num">{{ $t('nav.step', { step: currentStep }) }}</span>
-          <span class="step-name">{{ stepNames[currentStep - 1] }}</span>
+          <span class="step-num">Step {{ currentStep }}/5</span>
+          <span class="step-name">{{ $tm('main.stepNames')[currentStep - 1] }}</span>
         </div>
         <div class="step-divider"></div>
         <span class="status-indicator" :class="statusClass">
           <span class="dot"></span>
           {{ statusText }}
         </span>
-        <LanguageSwitcher />
       </div>
     </header>
 
@@ -49,7 +50,7 @@
 
       <!-- Right Panel: Step Components -->
       <div class="panel-wrapper right" :style="rightPanelStyle">
-        <!-- Step 1: Graph View Build -->
+        <!-- Step 1: 图谱构建 -->
         <Step1GraphBuild 
           v-if="currentStep === 1"
           :currentPhase="currentPhase"
@@ -60,7 +61,7 @@
           :systemLogs="systemLogs"
           @next-step="handleNextStep"
         />
-        <!-- Step 2: Environment Setup -->
+        <!-- Step 2: 环境搭建 -->
         <Step2EnvSetup
           v-else-if="currentStep === 2"
           :projectData="projectData"
@@ -82,27 +83,20 @@ import { useI18n } from 'vue-i18n'
 import GraphPanel from '../components/GraphPanel.vue'
 import Step1GraphBuild from '../components/Step1GraphBuild.vue'
 import Step2EnvSetup from '../components/Step2EnvSetup.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { generateOntology, getProject, buildGraph, getTaskStatus, getGraphData } from '../api/graph'
 import { getPendingUpload, clearPendingUpload } from '../store/pendingUpload'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 const route = useRoute()
 const router = useRouter()
-const { t } = useI18n()
+const { t, tm } = useI18n()
 
 // Layout State
 const viewMode = ref('split') // graph | split | workbench
 
-// Computed view modes with translations
-const viewModes = computed(() => [
-  { key: 'graph', label: t('main.layoutGraph') },
-  { key: 'split', label: t('main.layoutSplit') },
-  { key: 'workbench', label: t('main.layoutWorkbench') }
-])
-
 // Step State
-const currentStep = ref(1)
-const stepNames = computed(() => t('main.stepNames'))
+const currentStep = ref(1) // 1: 图谱构建, 2: 环境搭建, 3: 开始模拟, 4: 报告生成, 5: 深度互动
+const stepNames = computed(() => tm('main.stepNames'))
 
 // Data State
 const currentProjectId = ref(route.params.projectId)
@@ -141,11 +135,11 @@ const statusClass = computed(() => {
 })
 
 const statusText = computed(() => {
-  if (error.value) return t('main.statusError')
-  if (currentPhase.value >= 2) return t('main.statusReady')
-  if (currentPhase.value === 1) return t('main.statusBuildingGraph')
-  if (currentPhase.value === 0) return t('main.statusGeneratingOntology')
-  return t('main.statusInitializing')
+  if (error.value) return 'Error'
+  if (currentPhase.value >= 2) return 'Ready'
+  if (currentPhase.value === 1) return 'Building Graph'
+  if (currentPhase.value === 0) return 'Generating Ontology'
+  return 'Initializing'
 })
 
 // --- Helpers ---
@@ -170,11 +164,11 @@ const toggleMaximize = (target) => {
 const handleNextStep = (params = {}) => {
   if (currentStep.value < 5) {
     currentStep.value++
-    addLog(`Entering Step ${currentStep.value}: ${stepNames.value[currentStep.value - 1]}`)
+    addLog(t('log.enterStep', { step: currentStep.value, name: stepNames.value[currentStep.value - 1] }))
     
-    // If entering Step 3 from Step 2, log simulation round configuration
+    // 如果是从 Step 2 进入 Step 3，记录模拟轮数配置
     if (currentStep.value === 3 && params.maxRounds) {
-      addLog(`Custom simulation rounds: ${params.maxRounds}`)
+      addLog(t('log.customSimRounds', { rounds: params.maxRounds }))
     }
   }
 }
@@ -182,7 +176,7 @@ const handleNextStep = (params = {}) => {
 const handleGoBack = () => {
   if (currentStep.value > 1) {
     currentStep.value--
-    addLog(`Back Step ${currentStep.value}: ${stepNames.value[currentStep.value - 1]}`)
+    addLog(t('log.returnToStep', { step: currentStep.value, name: stepNames.value[currentStep.value - 1] }))
   }
 }
 
