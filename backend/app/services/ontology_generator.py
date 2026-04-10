@@ -6,6 +6,7 @@ Interface 1: Analyze text content and generate entity and relationship type defi
 import json
 from typing import Dict, Any, List, Optional
 from ..utils.llm_client import LLMClient
+from ..utils.locale import get_language_instruction
 
 
 # System prompt for ontology generation
@@ -188,8 +189,11 @@ class OntologyGenerator:
             additional_context
         )
         
+        # Get language instruction for LLM
+        lang_instruction = get_language_instruction()
+        
         messages = [
-            {"role": "system", "content": ONTOLOGY_SYSTEM_PROMPT},
+            {"role": "system", "content": ONTOLOGY_SYSTEM_PROMPT + f"\n\n{lang_instruction}"},
             {"role": "user", "content": user_message}
         ]
         

@@ -21,6 +21,7 @@ from enum import Enum
 from ..config import Config
 from ..utils.llm_client import LLMClient
 from ..utils.logger import get_logger
+from ..utils.locale import get_language_instruction
 from .graphiti_tools import (
     ZepToolsService,
     SearchResult,
@@ -1162,7 +1163,8 @@ class ReportAgent:
         if progress_callback:
             progress_callback("planning", 30, "Generating report outline...")
         
-        system_prompt = PLAN_SYSTEM_PROMPT
+        lang_instruction = get_language_instruction()
+        system_prompt = PLAN_SYSTEM_PROMPT + f"\n\n{lang_instruction}"
         user_prompt = PLAN_USER_PROMPT_TEMPLATE.format(
             simulation_requirement=self.simulation_requirement,
             total_nodes=context.get('graph_statistics', {}).get('total_nodes', 0),
@@ -1251,6 +1253,7 @@ class ReportAgent:
         if self.report_logger:
             self.report_logger.log_section_start(section.title, section_index)
         
+        lang_instruction = get_language_instruction()
         system_prompt = SECTION_SYSTEM_PROMPT_TEMPLATE.format(
             report_title=outline.title,
             report_summary=outline.summary,
@@ -1800,6 +1803,7 @@ class ReportAgent:
         except Exception as e:
             logger.warning(f"Failed to get report content: {e}")
         
+        lang_instruction = get_language_instruction()
         system_prompt = CHAT_SYSTEM_PROMPT_TEMPLATE.format(
             simulation_requirement=self.simulation_requirement,
             report_content=report_content if report_content else "(No report yet)",
