@@ -1,0 +1,46 @@
+# Sync Configuration for MiroFork
+# 
+# This file configures the behavior of the sync-with-upstream script
+# and GitHub Actions workflow.
+
+# Upstream repository settings
+upstream:
+  url: "https://github.com/666ghj/MiroFish"
+  branch: "main"
+
+# Your fork settings
+fork:
+  branch: "main"
+
+# Files and patterns to be preserved during sync
+# These will trigger warnings if conflicts occur
+protected_paths:
+  - "backend/app/services/graphiti_*.py"
+  - "backend/app/graphiti_client.py"
+  - "backend/app/config.py"
+  - "docker-compose.yml"
+  - "CHANGELOG.md"
+
+# Default sync strategy: "rebase" or "merge"
+default_strategy: "rebase"
+
+# Automatically stash uncommitted changes during sync
+auto_stash: true
+
+# Create backup branches before syncing
+create_backups: true
+backup_branch_prefix: "backup-before-sync"
+
+# Conflict resolution preferences (for documentation)
+# When conflicts occur in these areas, prefer:
+conflict_preferences:
+  i18n/translations: "keep_upstream"  # Upstream has better vue-i18n system
+  memory_backend: "keep_local"        # Keep Graphiti, not Zep Cloud
+  docker_config: "keep_local"         # Keep local build settings
+  dependencies: "review"              # Manual review needed
+
+# Notification settings (for future webhook integration)
+notifications:
+  on_conflict: true
+  on_success: false
+  on_failure: true
