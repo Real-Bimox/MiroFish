@@ -4,8 +4,8 @@ import pytest
 from app.services.graph_builder import GraphBuilderService
 
 FAKE_ONTOLOGY = {
-    "entity_types": {"Agent": {"description": "A social agent"}},
-    "edge_types":   {"KNOWS": {"description": "Knows relationship"}},
+    "entity_types": [{"name": "Agent", "description": "A social agent"}],
+    "edge_types":   [{"name": "KNOWS", "description": "Knows relationship"}],
     "source_targets": {"KNOWS": [{"source": "Agent", "target": "Agent"}]},
 }
 
