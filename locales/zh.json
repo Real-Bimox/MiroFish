@@ -179,7 +179,12 @@
     "startSimulation": "开始模拟",
     "back": "返回",
     "envSetupComplete": "环境搭建完成",
-    "startingSimulation": "正在开始模拟..."
+    "startingSimulation": "正在开始模拟...",
+    "taskId": "任务ID",
+    "systemDashboard": "系统仪表板",
+    "simulationId": "模拟ID",
+    "unknown": "未知",
+    "noDescription": "暂无描述"
   },
   "step3": {
     "title": "开始模拟",

@@ -179,7 +179,12 @@
     "startSimulation": "Start Simulation",
     "back": "Back",
     "envSetupComplete": "Environment setup complete",
-    "startingSimulation": "Starting simulation..."
+    "startingSimulation": "Starting simulation...",
+    "taskId": "Task ID",
+    "systemDashboard": "SYSTEM DASHBOARD",
+    "simulationId": "Simulation ID",
+    "unknown": "Unknown",
+    "noDescription": "No description available"
   },
   "step3": {
     "title": "Start Simulation",
