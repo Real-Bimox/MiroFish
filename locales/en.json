@@ -85,7 +85,13 @@
     "layoutGraph": "Graph View",
     "layoutSplit": "Split View",
     "layoutWorkbench": "Workbench",
-    "stepNames": ["Graph View Build", "Environment Setup", "Start Simulation", "Report Generation", "Deep Interaction"],
+    "stepNames": [
+      "Graph View Build",
+      "Environment Setup",
+      "Start Simulation",
+      "Report Generation",
+      "Deep Interaction"
+    ],
     "statusInitializing": "Initializing",
     "statusGeneratingOntology": "Generating Ontology",
     "statusBuildingGraph": "Building Graph",
@@ -190,7 +196,31 @@
     "logs": "Logs",
     "simulationComplete": "Simulation Complete",
     "generatingReport": "Generating report...",
-    "viewReport": "View Report"
+    "viewReport": "View Report",
+    "simulationMonitor": "SIMULATION MONITOR",
+    "world1Name": "Info Plaza",
+    "world2Name": "Topic Community",
+    "availableActions": "Available Actions",
+    "round": "ROUND",
+    "time": "TIME",
+    "acts": "ACTS",
+    "waitingForActions": "Waiting for agent actions...",
+    "totalEvents": "TOTAL EVENTS",
+    "searchQuery": "Search Query",
+    "actions": {
+      "post": "POST",
+      "like": "LIKE",
+      "repost": "REPOST",
+      "quote": "QUOTE",
+      "follow": "FOLLOW",
+      "idle": "IDLE",
+      "comment": "COMMENT",
+      "dislike": "DISLIKE",
+      "mute": "MUTE",
+      "trend": "TREND",
+      "refresh": "REFRESH",
+      "search": "SEARCH"
+    }
   },
   "step4": {
     "title": "Report Generation",
